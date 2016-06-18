@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
+
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+      #map {
+        height: 500px;
+      }
+      .controls {
+        margin-top: 10px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 300px;
+        margin-top: 10px;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+
+      .pac-container {
+        font-family: Roboto;
+      }
+
+      #type-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+      #target {
+        width: 345px;
+      }
+/*      #autocomplete {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 99%;
+      }*/
+    </style>
+    
+  </head>
+  <body >
+
+    <div class="row container" style="margin-top:2%">
+            {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{message.tags}}" {% endif %}>
+            {{message}}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+    <h3 style="text-align: center"> Profile </h3>
+
+      <form id='signupform' class="col s12" action="/edit/" method="POST" enctype="multipart/form-data">{% csrf_token %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="{{first.id}}" type="text" class="validate" name="{{first.id}}" value="{{first.ans}}" required>
+            <label for="{{first.id}}" >{{first.title}}({{first.require}})</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="username" type="text" class="validate" name="username" value="{{profile.username}}" required>
+            <label for="username" >Choose Username</label>
+          </div>
+        </div>
+
+
+        <!-- contact info -->
+        <div class="row">
+          <div class="col s12">
+
+            <h5>Contact Info</h5>
+          </div>
+          <div class="input-field col s12">
+            <input id="mobile" disabled type="text" class="validate" name="mobile" value="{{user.username}}" required>
+              <label for="mobile" ></label>
+          </div>
+          <div class="col s6">
+            <div class="row">
+              <div class="input-field col s4">
+                <input id="code" type="number" class="validate" name="std" 
+                value="{{std}}" >
+                <label for="code" >STD Code</label>
+              </div>
+            
+              <div class="input-field col s7">
+                <input id="tel" type="number" class="validate" name="tel" lenght=10 value="{{num}}">
+                <label for="tel" >Phone Number</label>
+              </div> 
+            </div>           
+          </div>
+
+          <!-- <div class="input-field col s6">
+            <input id="toll" type="text" class="validate" name="toll" >
+              <label for="toll" >TollFree Number</label>
+          </div> -->
+          <div class="input-field col s6">
+            <input id="website" type="url" class="validate" name="website" value="{{profile.website }}" >
+              <label for="website" >website</label>
+          </div>
+        </div>
+        <br>  
+
+                <!-- address info -->
+        <br>
+        <div class="row">
+          <div class="col s12">
+           <h5> Complete Address</h5>
+          </div>
+          <div class="input-field col s4">
+             <input id="street_number-1" type="text" value="{{address1.street}}" class="validate" name="street_1" required>
+              <label for="street_number-1" >street</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="route-1" type="text" value="{{address1.landmark}}" class="validate" name="landmark_1" required>
+              <label for="route-1" >landmark</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="sublocality_level_1-1" type="text" value="{{address1.district}}" class="validate" name="district_1" required>
+              <label for="sublocality_level_1-1" >district</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="locality-1" type="text" class="validate" value="{{address1.city}}" name="city_1" required>
+              <label for="localit-_1" >city</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="administrative_area_level_1-1" type="text" value="{{address1.state}}" class="validate" name="state_1" required>
+              <label for="administrative_area_level_1-1" >state</label>
+            </div>
+
+          <div class="input-field col s4">
+             <input id="postal_code-1" type="text" class="validate" value="{{address1.pincode}}" name="pincode_1" required>
+              <label for="postal_code-1" >pincode</label>
+            </div>
+          
+        </div>
+
+        <div class="row">
+          <p class="col s12">
+              <input type="checkbox" id="auto" name="auto" value="same" />
+              <label for="auto"> Same As Complete Address</label>
+          </p>
+        </div>
+
+
+
+        <div class="row sec">
+          <div class="col s12">
+            <h5>Postal Address</h5>
+          </div>
+        
+          <div class="input-field col s4">
+             <input id="street_number-2" type="text" class="validate" value="{{address2.street}}" name="street_2" >
+              <label for="street_number-2" >street</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="route-2" type="text" class="validate" name="landmark_2" value="{{address2.landmark}}">
+              <label for="route-2" >landmark</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="sublocality_level_1-2" type="text" class="validate" name="district_2" value="{{address2.district}}">
+              <label for="sublocality_level_1-2" >district</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="locality-2" type="text" class="validate" name="city_2" value="{{address2.city}}" >
+              <label for="locality-2" >city</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="administrative_area_level_1-2" type="text" class="validate" value="{{address2.state}}" name="state_2" >
+              <label for="administrative_area_level_1-2" >state</label>
+            </div>
+
+          <div class="input-field col s4">
+             <input id="postal_code-2" type="text" class="validate" value="{{address2.pincode}}" name="pincode_2" >
+              <label for="postal_code-2" >pincode</label>
+            </div>         
+        </div>
+
+
+      {% for ques in question|dictsort:"order" %}
+      {% if ques.order > 1 %}
+        {% if ques.type == 0 %}
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="{{ques.id}}" type="{{ques.formatType}}" class="validate" name="{{ques.id}} " value="{{ques.ans}}" {{ques.require}}>
+              <label for="{{ques.id}}" >{{ques.title}}({{ques.require}})</label>
+            </div>
+          </div>
+
+        {% elif ques.type == 1 %}
+          <div class="row">
+            <div class="input-field col s12">
+              <textarea id="{{ques.id}}" name="{{ques.id}}" {{ques.require}} value="{{ques.ans}}" class="materialize-textarea"></textarea>
+              <label for="{{ques.id}}">{{ques.title}}</label>
+            </div>
+          </div>
+        {% elif ques.type == 2 %}
+          <div class="row">
+            <div class="input-field col s12">
+             <select name="{{ques.id}}" {{ques.require}}>
+                {% for ops in ques.opt %}
+                  <option value="{{ops.op}}" {{ops.selected}}> {{ops.op}} </option>
+                {% endfor %}
+             </select>
+             <label>{{ques.title}}</label>
+            </div>
+          </div>
+
+        {% elif ques.type == 3 %}
+        <div class="row">
+        <h6>{{ques.title}}</h6>
+          {% for ops in ques.opt %}
+                <p class="col s3">
+                  <input type="checkbox" {{ops.check}} id="{{ops.op}}_{{ques.id}}_{{forloop.counter}}" value="{{ops.op}}" name="{{ques.id}}" />
+                  <label for="{{ops.op}}_{{ques.id}}_{{forloop.counter}}">{{ops.op}}</label>
+                </p>
+          {% endfor %}
+          </div>
+
+        {% elif ques.type == 4 %}
+        <div class="row">
+        <h6>{{ques.title}}</h6><br>
+
+                {% for ops in ques.opt %}
+                <div class="row col s4">
+                <p>                  
+                  <div class="col s6  col offset-2">
+                    <input type="checkbox" id="{{ops.op}}" {{ops.check}} value="{{ops.op|safe}}" name="{{ques.id}}" />
+                    <label for="{{ops.op}}" >{{ops.op}}</label></div>
+                    <div class="col s4">
+                    <input type="text" name='{{ops.op|safe}}' value="{{ops.value}}" placeholder="{{ques.placeholder}}" >
+                  </div>
+                </p>
+                </div>
+                {% endfor %}
+
+          </div>
+
+        {% elif ques.type == 5 %}
+        <div class="row">
+          <div class="input-field col s12">
+            <input type="date" class="datepicker" id="{{ques.id}}" name="{{ques.id}}" value="{{ques.ans}}" {{ques.require}}>
+            <label for="{{ques.id}}" >{{ques.title}}</label>
+          </div>
+        </div>
+
+        {% elif ques.type == 6 %}
+         <ul class="collapsible row" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header cl">
+                  <i class="material-icons">place</i>{{ques.title}}    
+                  <input type="text" name="{{ques.id}}" value="{{ques.ans}}" id='mapvalue'  {{ques.required}}>
+              </div>
+              <div class="collapsible-body">
+                  <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+                <div id="map" style="height:500px"></div>
+              </div>
+            </li>
+          </ul>
+
+        {% elif ques.type == 7 %}
+          <h6>{{ques.title}}</h6><br>
+            <div class="row" id="{{ques.id}}">
+          {% for ans in ques.ans %}
+              {% for key,data in ans.items %}             
+                <div class="input-field col s{{ques.formatType}}" >
+                  <input type="text" id="{{key|safe}}" value="{{data}}" name="{{ques.id}}" {{ques.required}}/>
+                  <label for="{{key|safe}}">{{key|safe}}</label>
+                </div>
+              {% endfor %}
+          {% endfor %}
+          </div>
+
+            <a class="waves-effect waves-light btn  col s2 col offset-s7" onclick="registerremoveclick(this,'{{ques.id}}')"> Remove </a>
+            <a class="waves-effect waves-light btn  col s2 col offset-s1" value=0 onclick="registeraddclick(this,'{{ques.id}}')"> Add More</a>
+
+          {% endif %}
+          <br>
+        {% endif %}
+        {% endfor %}
+
+
+
+
+        
+        <!-- file uploads -->
+        <div class="row">
+          <div class="col s12">
+            Documents Upload
+          </div>
+          <br>
+          <br>
+          <br>
+          {% for doc in document %}
+            <div class="file-field input-field row col s6" >
+            {% if doc.file != ' ' %}
+            <a href="{{doc.file}}">{{doc.file}}</a>
+            {% endif %}
+              <div class="btn col s4" >
+                <span>{{doc.name}} </span>
+                <input type="file" name="file_{{doc.id}}">
+              </div>
+              <div class="file-path-wrapper col s8">
+                <input class="file-path validate" type="text" id="file_{{doc.id}}" placeholder="{{doc.Format}}">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <button class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit">Submit</button>
+      </form>
+    </div>
+
+    <script type="text/javascript" src="{% static "js/detail.js" %}"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    <script type="text/javascript" src="{% static "materialize/js/materialize.min.js" %}"></script>
+
+  </body>

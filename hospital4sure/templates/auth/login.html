@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+    </style>
+    
+  </head>
+  <body >
+
+
+    <div class="row container" style="margin-top:5%">
+
+      <form id='signupform' class="card col s8 col offset-s2" action="/login/" method="POST" style="padding:30px" name="signupform">{% csrf_token %}
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{message.tags}}" {% endif %}>
+            {{message}}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+        <div class="row">
+            <div class="input-field col s5">
+            <i class="material-icons prefix">flag</i>
+
+              <select id='isd' name="isd">
+              </select>
+            </div>
+            <div class="input-field col s7">
+            <i class="material-icons prefix">phone</i>
+              <input id="username" type="number" class=" validate" name="phone" required>
+              <label for="username" >Phone Number</label>
+            </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">visibility</i>
+            <input id="password" type="password" class="validate" name="password" required>
+            <label for="password">Password</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s4 col offset-s8">
+            <a href="/checkph/" class=" modal-trigger" style="text-align:right">Forgot Password</a>
+          </div>
+        </div>
+        <button  class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit">Login</button>
+      </form>
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+      isdcodes();
+      $('select').material_select();
+    });
+
+    function isdcodes(){
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "https://gist.githubusercontent.com/Goles/3196253/raw/9ca4e7e62ea5ad935bb3580dc0a07d9df033b451/CountryCodes.json/",
+      })
+      .error(function(){
+      	var x = jQuery('<option/>', {        
+	          text : 'India' +' - ' + '+91',
+	          value : '+91',
+	          selected : "",
+	          style : "text-align:center",
+        })
+        x.appendTo('#isd');
+        $('#isd').material_select();
+
+      })
+      .done(function(data) {
+        data = JSON.parse(data)
+        data[198].dial_code = "+600";
+        // var max = {"length": "", "val": } 
+        for (var i = 0; i < data.length; i++) {
+          if(data[i].dial_code == "+91"){
+            var ind = jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  selected : "",
+                  style : "text-align:center",
+              })
+            ind.appendTo('#isd');
+            
+          }
+          else{
+            var rest = jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  style : "text-align:center",
+              })
+              rest.appendTo('#isd');
+            }
+          }
+          $('#isd').material_select();          
+
+      })
+    }
+    
+    </script>
+  </body>

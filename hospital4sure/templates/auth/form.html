@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
+
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+      #map {
+        height: 500px;
+      }
+      .controls {
+        margin-top: 10px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 300px;
+        margin-top: 10px;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+
+      .pac-container {
+        font-family: Roboto;
+      }
+
+      #type-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+      #target {
+        width: 345px;
+      }
+/*      #autocomplete {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 99%;
+      }*/
+    </style>
+    
+  </head>
+  <body >
+
+    <div class="row container" style="margin-top:10%">
+
+    <h3 style="text-align: center"> DeTails Form </h3>
+
+      <form id='signupform' class="col s12" action="/submit/" method="POST" enctype="multipart/form-data">{% csrf_token %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="{{first.id}}" type="text" class="validate" name="{{first.id}}" required>
+            <label for="{{first.id}}" >{{first.title}}({{first.require}})</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="username" type="text" class="validate" name="username" required>
+            <label for="username" >Choose Username</label>
+          </div>
+        </div>
+
+
+        <!-- contact info -->
+        <div class="row">
+          <div class="col s12">
+
+            <h5>Contact Info</h5>
+          </div>
+          <div class="input-field col s12">
+            <input id="mobile" disabled type="text" class="validate" name="mobile" value="{{user.username}}" required>
+              <label for="mobile" ></label>
+          </div>
+          <div class="col s6">
+            <div class="row">
+              <div class="input-field col s4">
+                <input id="code" type="number" class="validate" name="std" >
+                <label for="code" >STD Code</label>
+              </div>
+            
+              <div class="input-field col s7">
+                <input id="tel" type="number" class="validate" name="tel" lenght=10>
+                <label for="tel" >Phone Number</label>
+              </div> 
+            </div>           
+          </div>
+
+          <!-- <div class="input-field col s6">
+            <input id="toll" type="text" class="validate" name="toll" >
+              <label for="toll" >TollFree Number</label>
+          </div> -->
+          <div class="input-field col s6">
+            <input id="website" type="url" class="validate" name="website" >
+              <label for="website" >website</label>
+          </div>
+        </div>
+        <br>  
+
+                <!-- address info -->
+        <br>
+        <div class="row">
+          <div class="col s12">
+           <h5> Complete Address</h5>
+          </div>
+          <div id="locationField row">
+            <div class="input-field col s12">
+              <input id="autocomplete" placeholder="Enter your address"
+                    onFocus="geolocate()" type="text"/>
+            </div>
+          </div>
+          <div class="input-field col s4">
+             <input id="street_number-1" type="text" class="validate" name="street_1" required>
+              <label for="street_number-1" >street</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="route-1" type="text" class="validate" name="landmark_1" required>
+              <label for="route-1" >landmark</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="sublocality_level_1-1" type="text" class="validate" name="district_1" required>
+              <label for="sublocality_level_1-1" >district</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="locality-1" type="text" class="validate" name="city_1" required>
+              <label for="localit-_1" >city</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="administrative_area_level_1-1" type="text" class="validate" name="state_1" required>
+              <label for="administrative_area_level_1-1" >state</label>
+            </div>
+
+          <div class="input-field col s4">
+             <input id="postal_code-1" type="text" class="validate" name="pincode_1" required>
+              <label for="postal_code-1" >pincode</label>
+            </div>
+          
+        </div>
+
+        <div class="row">
+          <p class="col s12">
+              <input type="checkbox" id="auto" name="auto" value="same" />
+              <label for="auto"> Same As Complete Address</label>
+          </p>
+        </div>
+
+
+
+        <div class="row sec">
+          <div class="col s12">
+            <h5>Postal Address</h5>
+          </div>
+        
+          <div id="locationField row">
+            <div class="input-field col s12">
+              <input id="autocomplete2" placeholder="Enter your address"
+                    onFocus="geolocate()" type="text"/>
+            </div>
+          </div>
+          <div class="input-field col s4">
+             <input id="street_number-2" type="text" class="validate" name="street_2" >
+              <label for="street_number-2" >street</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="route-2" type="text" class="validate" name="landmark_2" >
+              <label for="route-2" >landmark</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="sublocality_level_1-2" type="text" class="validate" name="district_2" >
+              <label for="sublocality_level_1-2" >district</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="locality-2" type="text" class="validate" name="city_2" >
+              <label for="locality-2" >city</label>
+            </div>
+          <div class="input-field col s4">
+             <input id="administrative_area_level_1-2" type="text" class="validate" name="state_2" >
+              <label for="administrative_area_level_1-2" >state</label>
+            </div>
+
+          <div class="input-field col s4">
+             <input id="postal_code-2" type="text" class="validate" name="pincode_2" >
+              <label for="postal_code-2" >pincode</label>
+            </div>         
+        </div>
+
+
+      {% for ques in question|dictsort:"order" %}
+      {% if ques.order > 1 %}
+        {% if ques.type == 0 %}
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="{{ques.id}}" type="{{ques.formatType}}" class="validate" name="{{ques.id}}" {{ques.require}}>
+              <label for="{{ques.id}}" >{{ques.title}}({{ques.require}})</label>
+            </div>
+          </div>
+
+        {% elif ques.type == 1 %}
+          <div class="row">
+            <div class="input-field col s12">
+              <textarea id="{{ques.id}}" name="{{ques.id}}" {{ques.require}}  class="materialize-textarea"></textarea>
+              <label for="{{ques.id}}">{{ques.title}}</label>
+            </div>
+          </div>
+        {% elif ques.type == 2 %}
+          <div class="row">
+            <div class="input-field col s12">
+             <select name="{{ques.id}}" {{ques.require}}>
+              <option value="" disabled selected>Choose your option</option>
+                {% for x in options %}
+                  {% if x.id == ques.id %}
+                    {% for op in x.options %}
+                      <option value="{{op}}"> {{op}} </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+             </select>
+             <label>{{ques.title}}</label>
+            </div>
+          </div>
+
+        {% elif ques.type == 3 %}
+        <div class="row">
+        <h6>{{ques.title}}</h6>
+          {% for x in options %}
+              {% if x.id == ques.id %}
+                {% for op in x.options %}
+                <p class="col s3">
+                  <input type="checkbox" id="{{op}}_{{ques.id}}_{{forloop.counter}}" value="{{op}}" name="{{ques.id}}" />
+                  <label for="{{op}}_{{ques.id}}_{{forloop.counter}}">{{op}}</label>
+                </p>
+                {% endfor %}
+              {% endif %}
+          {% endfor %}
+          </div>
+
+        {% elif ques.type == 4 %}
+        <div class="row">
+        <h6>{{ques.title}}</h6><br>
+          {% for x in options %}
+              {% if x.id == ques.id %}
+                {% for op in x.options %}
+                <div class="row col s4">
+                <p>                  
+                  <div class="col s6  col offset-2">
+                    <input type="checkbox" id="{{op}}" value="{{op|safe}}" name="{{ques.id}}" />
+                    <label for="{{op}}" >{{op}}</label></div>
+                    <div class="col s4">
+                    <input type="text" name='{{op|safe}}' value="" placeholder="{{ques.placeholder}}" >
+                  </div>
+                </p>
+                </div>
+                {% endfor %}
+              {% endif %}
+          {% endfor %}
+          </div>
+
+        {% elif ques.type == 5 %}
+        <div class="row">
+          <div class="input-field col s12">
+            <input type="date" class="datepicker" id="{{ques.id}}" name="{{ques.id}}" {{ques.require}}>
+            <label for="{{ques.id}}" >{{ques.title}}</label>
+          </div>
+        </div>
+
+        {% elif ques.type == 6 %}
+         <ul class="collapsible row" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header cl">
+                  <i class="material-icons">place</i>{{ques.title}}    
+                  <input type="hidden" name="{{ques.id}}" value=""  {{ques.required}}>
+              </div>
+              <div class="collapsible-body">
+                  <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+                <div id="map" style="height:500px"></div>
+              </div>
+            </li>
+          </ul>
+
+        {% elif ques.type == 7 %}
+          <h6>{{ques.title}}</h6><br>
+            <div class="row" id="{{ques.id}}">
+          {% for x in options %}
+              {% if x.id == ques.id %}
+                {% for op in x.options %}
+                <div class="input-field col s{{ques.formatType}}" >
+                  <input type="text" id="{{op|safe}}" name="{{ques.id}}" {{ques.required}}/>
+                  <label for="{{op|safe}}">{{op|safe}}</label>
+                </div>
+                {% endfor %}
+              {% endif %}
+          {% endfor %}
+          </div>
+
+            <a class="waves-effect waves-light btn  col s2 col offset-s7" onclick="registerremoveclick(this,'{{ques.id}}')"> Remove </a>
+            <a class="waves-effect waves-light btn  col s2 col offset-s1" value=0 onclick="registeraddclick(this,'{{ques.id}}')"> Add More</a>
+
+          {% endif %}
+          <br>
+        {% endif %}
+        {% endfor %}
+
+
+
+
+        
+        <!-- file uploads -->
+        <div class="row">
+          <div class="col s12">
+            Documents Upload
+          </div>
+          <br>
+          <br>
+          <br>
+          {% for doc in document %}
+            <div class="file-field input-field row col s6" >
+            {% if  doc.amount == 1 %}
+              <div class="btn col s4" >
+                <span>{{doc.name}} </span>
+                <input type="file" name="file_{{doc.id}}" required="">
+              </div>
+            {% else %}
+            <div class="btn col s4" >
+                <span>{{doc.name}} </span>
+                <input type="file" name="file_{{doc.id}}" multiple required="">
+              </div>
+            {% endif %}
+              <div class="file-path-wrapper col s8">
+                <input class="file-path validate" type="text" id="{{doc.id}}" placeholder="{{doc.Format}}">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <input type="hidden" name="cat" value="{{cat}}">
+        <input type="hidden" name="user" value="{{user}}">
+        <button class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit" form="signupform">Submit</button>
+      </form>
+    </div>
+
+    <script type="text/javascript" src="{% static "js/form.js" %}"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    <script type="text/javascript" src="{% static "materialize/js/materialize.min.js" %}"></script>
+
+  </body>
