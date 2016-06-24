@@ -11,8 +11,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core import management
 from auths.management.commands import sendotp
 from auths.models import *
-import random, string, json, re, urllib2 , urllib
+import random, string, json, re, urllib2 , urllib, ast
 from django.contrib import messages
+from django.db.models import Q
+
 
 # Create your views here.
 
@@ -30,7 +32,15 @@ def index(request):
         pass
 
     if 'userid' not in request.session:
-        return HttpResponseRedirect('/signup/')
+        id = [1,2,4,3,5]
+        cat_id = Category.objects.filter(id__in = id)
+        print cat_id
+        for cat in cat_id:
+            cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
+        context = {
+            'cat' : cat_id,
+        }
+        return render_to_response('anon/index.html',context,RequestContext(request))
 
     profile = User.objects.get(id = request.session['userid']).profile
     
@@ -202,10 +212,10 @@ def subcategory(request):
                                            cls=DjangoJSONEncoder))
 
 def test(request):
-    if request.POST:
-        # messages.add_message(request,messages.INFO, 'Hello Wrold')
-        return HttpResponse('jhsk')
-    return render_to_response('auth/test.html',RequestContext(request))
+    user = User.objects.get(username = '+911234567890')
+    spec = user.answerby.filter(question__title = "Specialization")[0].answer.split('\r\n')
+    print
+    return HttpResponse(len(spec))
 
 def changeotp(request):
     if request.is_ajax():
@@ -910,4 +920,147 @@ def checkph(request):
 
     return render_to_response('auth/changecp.html',{'phone':'phone'},RequestContext(request))
 
-        
+def getcities(request):
+    if request.is_ajax():
+        q = request.GET.get('term', False)
+        results = []
+        name_json = ''
+        listt = Address.objects.filter(Q(city__icontains=q)).filter(type = 'complete')
+        print listt
+        for city in listt:
+            name_json = city.city.lower()
+            if name_json in results:
+                pass
+            else:
+                results.append(name_json)
+        data = json.dumps(results)
+        print data
+    else:
+        data = 'fail'
+
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+def getlocal(request):
+    if request.is_ajax():
+        city = request.GET.get('city')
+        q = request.GET.get('term', False)
+        results = []
+        name_json = ''
+        listt = Address.objects.filter(city__iexact = city).filter(type = 'complete').filter(Q(landmark__istartswith=q))
+        print city,listt
+        for landmark in listt:
+            name_json = landmark.landmark.lower()
+            if name_json in results:
+                pass
+            else:
+                results.append(name_json)
+        data = json.dumps(results)
+        print data
+    else:
+        data = 'fail'
+
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+def getspec(request):
+    if request.is_ajax():
+        cat = request.GET.get('cat')
+        q = request.GET.get('term', False)
+        results = []
+        name_json = ''
+        listt = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
+        print listt
+        for val in listt:
+            print q
+            if(val.lower().find(q.lower()) != -1):
+                name_json = val
+                results.append(name_json)
+        data = json.dumps(results)
+        print data
+    else:
+        data = 'fail'
+
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+def search(request):
+    if request.POST:
+        spec = ''
+        city = request.POST.get('city')
+        landmark = request.POST.get('locality')
+        cat = request.POST.get('category')
+        print cat
+
+        if landmark != '' :
+            user = User.objects.filter(profile__category = cat)
+            user = user.filter(address__city__iexact = city,address__landmark__iexact = landmark,address__type = 'complete')
+        else:
+            user = User.objects.filter(profile__category = cat)
+            user = user.filter(address__city__iexact = city,address__type = 'complete')
+
+        if request.POST.get('specialization') != '':
+            spec = request.POST.get('specialization')            
+            user = user.filter(Q(answerby__answer__icontains = spec), answerby__question__title = 'Specialization')
+             
+
+        for usr in user:
+            usr.add = usr.address.filter(type='complete')[0]
+            usr.name = usr.answerby.filter(question__order = 1)[0].answer
+            usr.spec = usr.answerby.filter(question__title = "Specialization")[0].answer.split('\r\n')
+            doc = Document.objects.filter(category = cat, list_view = 1)[0]
+            usr.doc = usr.docsof.filter(documnet = doc)[0].file 
+                       
+        context = {
+            'users' : user,
+            'city': city,
+            'locality' : landmark,
+            'selcat' : cat,
+            'cat' : Category.objects.all(),
+            'spec' : spec,
+            'catname' : Category.objects.get(id = cat),
+        }
+        return render_to_response('anon/list.html',context,RequestContext(request))
+
+
+def viewprofile(request,category_name,username):
+    user = User.objects.get(profile__username = username)
+    answer = UserAnswer.objects.filter(user = user)[:17]
+    for x in answer:
+        x.disp = [s.name for s in x.question.disp.all()]
+        if x.question.type == 3 or x.question.type == 4 :
+            x.opt = x.answer.split('\r\n')
+        elif x.question.type == 7:
+            x.answer = ast.literal_eval(x.answer)
+            chek = x.answer[0]
+            op = x.question.options.split('\r\n')[0]
+            if chek[op] == "":
+                x.answer = ''
+
+    user.add = user.address.filter(type='complete')[0]
+    user.name = user.answerby.filter(question__order = 1)[0].answer
+    user.fb = user.answerby.filter(question__title = "FaceBook Page Link")[0].answer
+    doc = Document.objects.filter(category__name = category_name , list_view = 1)[0]
+    user.doc = user.docsof.filter(documnet = doc)[0].file
+    user.file = user.docsof.filter(user = user, documnet__Format__icontains = 'image')[:4]
+    user.location = user.answerby.filter(question__title = "Locate On Map")[0].answer
+    context = {
+            'usr' : user,
+            'catname' : category_name,
+            'cat' : Category.objects.all(),
+            'answers' : answer,
+    }
+    return render_to_response('anon/profile.html',context,RequestContext(request))
+
+
+def searchlink(request,category_name,spec):
+    if request.POST:
+        print request.POST.get('city')
+        mutable = request.POST._mutable
+        request.POST._mutable = True
+        request.POST['specialization'] = spec
+        request.POST['locality'] = ''
+        request.POST['category'] = category_name
+        mutable = False
+        request.POST._mutable = mutable
+        return search(request)

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% load static %}
+
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaffoddLa</title>  
+
+    <style type="text/css">
+      li{
+        text-decoration:none;
+      }
+    </style>
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
+    <link rel="stylesheet" href="{% static "css/jquery-ui.min.css "%}">
+
+    
+  </head>
+  <body>
+    <div class="section no-pad-bot" id="index-banner" style="background-image : url(/static/images/index.jpg);background-size:cover">
+        <div class="container">
+          <nav style="background-color:transparent">
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">Logo</a>
+          <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Login</a></li>
+            <li><a href="/signup/">SignUp</a></li>
+          </ul>
+          <ul class="side-nav" id="mobile-demo">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Login</a></li>
+            <li><a href="/signup/">SignUp</a></li>
+          </ul>
+        </div>
+      </nav>
+          <h5 class="header center-on-small-only" style="visibility:hidden">Hospital For Sure</h5>
+        </div>
+        <div class='row center' style="color:white">
+            <h4 class ="header col s12 light center"> Find </h4>
+          </div>
+          <form action="/search/" method="POST">
+          {% csrf_token %}
+         <div class="container row col s10 col offset-s2">
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="city" type="text" class="validate" name="city" required>
+              <label for="city">City</label>
+              <div id="cityresult" style="display:block;position:relative"></div>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="locality" type="text" class="validate" name="locality" required>
+              <div id="localresult" style="display:block;position:relative"></div>
+              <label for="locality">locality</label>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">view_list</i>
+                <select id='cat' name="category" required>
+                  <option value="" >Choose your Category</option>
+                </select>
+                <label>Category</label>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="specialization" type="text" class="validate" name="specialization" >
+              <label for="specialization">Specialization</label>
+              <div id="spec" style="display:block;position:fixed"></div>
+          </div>
+
+          <div class="row" style="">
+            <button  class="waves-effect waves-light btn col s3 col offset-s5" style="align:center;margin-top:30px;margin-bottom:30px"
+            type="submit">Search</button>
+          </div>
+         </div>
+
+
+        </form>
+    </div>
+
+    <div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        {% for c in cat %}
+        <li class="tab col s3"><a href="#test_{{c.id}}" style="padding-bottom:10px">{{c.name}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="container row">
+      <br>
+      <br>
+      <br>
+      {% for c in cat %}
+      <div class="card col s12" id = "test_{{c.id}}" style="margin-top:40px">
+        {% for special in c.spec %}
+          <form id="form_{{special}}" method="POST" action="/link/{{c.id}}/{{special}}/">
+            {% csrf_token %}
+            <div class="card col offset-s1 col s3">
+            <input type="hidden" name="city" class="ci">
+              <a href="javascript:{}" onclick="submit('form_{{special}}');">{{special}}</a>
+            </div>
+          </form>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+    
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/jquery-ui-1.8.24.min.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <!-- <script src="./js/sadgi2.js"></script>     -->
+    <script type="text/javascript">
+      
+      $(document).ready(function() {
+         $('ul.tabs').tabs();
+        callcat();
+        $('select').material_select();
+        $(".button-collapse").sideNav();
+        $("#city").autocomplete({
+          source: "/get-cities/",
+          minLength: 2,
+          appendTo: '#cityresult'
+        });
+        
+
+        $("#locality").on('click',function(){
+            var city = $("#city").val()
+            $(this).autocomplete({
+            source: "/get-local/?city="+city,
+            minLength: 1,
+            appendTo: '#localresult'
+          });
+        })
+
+        $("#specialization").on('click',function(){
+              var city = $("#cat").val()
+              $(this).autocomplete({
+              source: "/get-spec/?cat="+city,
+              minLength: 1,
+              appendTo: '#spec'
+            });
+          })
+      });
+
+    function callcat(){
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "/category/",
+          data : {
+            'csrf' : '{{ csrf_token }}'
+          }
+      })
+      .done(function(data) {
+          // $('#cat').material_select('destroy');
+          cat = JSON.parse(data).data
+          $.each(cat, function(i){                
+              jQuery('<option/>', {        
+                  text : cat[i].name,
+                  value : cat[i].id,
+              }).appendTo('#cat');
+          })
+          $('#cat').material_select();
+      })
+    }
+    function submit(id){
+      city = $('#city').val()
+      if(city == ''){
+        alert('please enter city to search')
+      }
+      else{
+        $('.ci').attr('value',city)
+        document.getElementById(id).submit()
+      }
+      
+    }
+
+    </script>
+  </body>

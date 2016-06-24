@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% load static %}
+
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaffoddLa</title>  
+
+    <style type="text/css">
+      li{
+        text-decoration:none;
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
+    <link rel="stylesheet" href="{% static "css/jquery-ui.min.css "%}">
+    <style>
+      #setCenterUI {
+        background-color: #fff;
+        border: 2px solid #fff;
+        border-radius: 3px;
+        box-shadow: 0 2px 6px rgba(0,0,0,.3);
+        cursor: pointer;
+        float: left;
+        margin-bottom: 22px;
+        size: 40px;
+        text-align: center;
+      }
+      #setCenterText {
+        color: rgb(25,25,25);
+        font-family: Roboto,Arial,sans-serif;
+        font-size: 15px;
+        line-height: 25px;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+    </style>
+    <!-- facebook-->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.4";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+  </head>
+  <body>
+        <div class="container">
+          <nav >
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">Logo</a>
+          <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Login</a></li>
+            <li><a href="/signup/">SignUp</a></li>
+          </ul>
+          <ul class="side-nav" id="mobile-demo">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Login</a></li>
+            <li><a href="/signup/">SignUp</a></li>
+          </ul>
+        </div>
+      </nav>
+        </div>
+          <form action="/search/" method="POST" >
+          {% csrf_token %}
+         <div class="container row col s10 col offset-s2" style="padding-top:20px;background-color:#5c5757">
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="city" type="text" class="validate" name="city" required value="{{city}}">
+              <label for="city">City</label>
+              <div id="cityresult" style="display:block;position:relative"></div>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="locality" type="text" class="validate" name="locality" required value="{{locality}}">
+              <div id="localresult" style="display:block;position:relative"></div>
+              <label for="locality">locality</label>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">view_list</i>
+                <select id='cat' name="category" required>
+                {% for c in cat %}
+                	{% if c.id == selcat %}
+                  		<option value="{{c.id}}" selected>{{c.name}}</option>
+                  	{% else %}
+                  		<option value="{{c.id}}">{{c.name}}</option>
+                	{% endif %}
+                {% endfor %}
+                </select>
+                <label>Category</label>
+          </div>
+          <div class="input-field col s3">
+            <i class="material-icons prefix">place</i>
+              <input id="specialization" type="text" class="validate" name="specialization" value="{{spec}}" >
+              <label for="specialization">Specialization</label>
+              <div id="spec" style="display:block;position:fixed"></div>
+          </div>
+
+          <div class="row" style="">
+            <button  class="waves-effect waves-light btn col s3 col offset-s5" style="align:center;"
+            type="submit">Search</button>
+          </div>
+         </div>
+        </form>
+
+        <div class="container">
+          <div class="card row  col s11">
+            <div class="col s3">
+              <img src="/media/{{usr.doc}}" style="height:200px;width:100%">
+            </div>
+            <div class="col s8">
+              <h5 id="name"><a href="/{{catname}}/{{usr.profile.username}}/">{{usr.name|upper}}</a></h5>
+              <label for="name" ><h6>Category : {{catname}}</h6> 
+
+              </label>
+            </div>
+            <div class="row col offsets-s3 col s8">
+              <div class="col l5 m6 s12">
+              <h5>Address</h5>
+                <address>
+                  {{usr.add.street}},{{usr.add.landmark}},
+                  <br>
+                  {{usr.add.city}},{{usr.add.pincode}}
+                  <br>
+                  {{usr.add.state}}
+                </address>              
+              </div>
+              <div class="col l6 m6 s12 " style="text-align:right">
+                <h5>Contact Details</h5>
+                <i class="material-icons prefix" style='vertical-align: middle;'> mail </i>
+                <span style="display: inline-block;">{{usr.email}}</span>
+                <br>
+                <i class="material-icons prefix" style='vertical-align: middle;'>phone </i>
+                <spam style="display: inline-block;">{{usr.username}}</spam>
+                <br>
+                <i class="material-icons prefix" style='vertical-align: middle;'>phone</i>
+                <span style="display: inline-block;">{{usr.profile.telephone}}</span>
+            </div>
+            <div class="row  col s8" style="margin-top:25px">
+              <h5>Online Presence</h5>
+              {% if usr.profile.website != '' %}
+                <h6> Visit Us @ <a href="{{usr.profile.website}}" target="_blank">{{usr.profile.website}}</a></h6>
+              {% endif %}
+              {% if usr.fb != '' %}
+                <h6> fb page <a href="{{usr.fb}}" target="_blank">{{usr.fb}}</a></h6>
+                <div class="fb-like" 
+                    data-href="{{usr.fb}}" 
+                    data-width="500" 
+                    data-layout="button" 
+                    data-action="like" 
+                    data-show-faces="false" 
+                    data-share="true">
+                </div>
+                <div class="fb-share-button" 
+                    data-href="{{usr.profile.website}}" 
+                    data-layout="button">
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s12">
+              <ul class="tabs">
+                <li class="tab col s3"><a href="#test1" class="active" >OverView</a></li>
+                <li class="tab col s3"><a href="#test2">Services</a></li>
+                <li class="tab col s3"><a href="#test3">Images</a></li>
+                <li class="tab col s3"><a href="#test4" id="mapshw" >Map</a></li>
+              </ul>
+            </div>
+                         
+              <div id="test1" class="row col offset-s1 col s10">
+                <br>
+                {% for ans in answers|dictsort:"question.order" %}
+                  {% if 'Overview' in ans.disp %}
+                    {% if ans.question.type == 1 %}
+                      {% if ans.answer != '' %}
+                        <div class="row card col s12">
+                          <h6>{{ans.question.title}}</h6>
+                            <p>{{ans.answer}}</p>
+                        </div>
+                      {% endif %}
+
+                    {% elif ans.question.type == 0 or ans.question.type == 2 or ans.question.type == 5 %}
+                      {% if ans.answer != '' %}
+                      <div class="card col s6">
+                          <h6>{{ans.question.title}}</h6>
+                          <p>{{ans.answer}}</p>
+                      </div>
+                      {% endif %}
+
+                    {% elif ans.question.type == 7 %}
+                      {% if ans.answer != '' %}
+                        <div class="card col s12">
+                          <table class="highlight centered">
+                            <thead>
+                              <tr>
+                                <th class="data-field ">Year</th>
+                                <th class="data-field  ">Award</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for ans in ans.answer %}
+                              <tr>
+                                {% for key,data in ans.items %}      
+                                  <td>{{data}}</td>
+                                {% endfor %}
+                              </tr>
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endif %}
+
+
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              <div id="test2" class="row col offset-s1 col s10">
+                {% for ans in answers|dictsort:"question.type" %}
+                  {% if 'Services' in ans.disp %}
+                    {% if ans.question.type == 3 or ans.question.type = 4 %}
+                      {% if ans.answer != '' %}
+                        <div class="card col s6">
+                          <h6>{{ans.question.title}}</h6>
+                          {% for x in ans.opt %}
+                            <p class="col s6">{{x}}</p>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <div id="test3" class="row col offset-s1 col s10">
+                <div class="slider"> 
+                  <ul class="slides">
+                  {%  for image in usr.file %} 
+                    <li> 
+                      <img src="/media/{{image.file}}"> <!-- random image --> 
+                      <div class="caption center-align"> 
+                        <h3>{{image.documnet.name}}</h3> 
+                        <!-- <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>  -->
+                      </div> 
+                    </li>
+                  {% endfor %}
+
+                  </ul> 
+                </div>
+              </div>
+              <div id="test4" class="row col offset-s1 col s10">
+              <br>
+              <br>
+                <div id="map" style="height:400px"></div>
+                <input type="hidden" id="location" value="{{usr.location}}" />
+              </div>
+              
+
+        </div>
+      </div>
+    </div>
+    
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/jquery-ui-1.8.24.min.js" %}"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      var lat = ''
+      var lng = ''
+      $(document).ready(function() {
+        $('ul.tabs').tabs();
+        $('.slider').slider({full_width: true});
+        $('select').material_select();
+        $(".button-collapse").sideNav();
+        $('#mapshw').on('click',function(){
+          console.log('djks')
+          initMap();
+        })
+        $("#city").autocomplete({
+          source: "/get-cities/",
+          minLength: 2,
+          appendTo: '#cityresult'
+        });        
+
+        $("#locality").on('click',function(){
+            var city = $("#city").val()
+            $(this).autocomplete({
+            source: "/get-local/?city="+city,
+            minLength: 1,
+            appendTo: '#localresult'
+          });
+        })
+
+        $("#specialization").on('click',function(){
+              var city = $("#cat").val()
+              $(this).autocomplete({
+              source: "/get-spec/?cat="+city,
+              minLength: 1,
+              appendTo: '#spec'
+            });
+          })
+      });
+
+      function CenterControl(controlDiv) {
+        console.log('gkj')
+        var setCenterUI = document.createElement('div');
+        setCenterUI.id = 'setCenterUI';
+        setCenterUI.title = 'Click to Navigate';
+        controlDiv.appendChild(setCenterUI);
+
+        // Set CSS for the control interior
+        var setCenterText = document.createElement('a');
+        setCenterText.id = 'setCenterText';
+        setCenterText.innerHTML = 'Go Navigate';
+        setCenterText.href = 'https://www.google.com/maps?f=d&daddr='+lat + ','+ lng +'/'
+        setCenterText.target = '_blank'
+        setCenterUI.appendChild(setCenterText);
+      }
+
+
+        function initMap() {
+          position = document.getElementById("location").value.split(',')
+          lat = Number(position[0])
+          lng = Number(position[1])
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: {lat: lat , lng: lng},
+            draggable : false,
+          });
+
+          google.maps.event.addListener(map, "idle", function(){
+              google.maps.event.trigger(map, 'resize'); 
+            });
+         var marker = new google.maps.Marker({
+                position: map.getCenter(),
+                map: map,
+                title: 'Your selected location!!'
+            });
+          var controlDiv = document.createElement('div');
+          var myControl = new CenterControl(controlDiv);
+          controlDiv.index = 1;
+          map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+        }
+    </script>
+  </body>

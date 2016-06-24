@@ -61,20 +61,27 @@ class Document(models.Model):
     Format = models.CharField(max_length = 100)
     MaxSize = models.IntegerField()
     amount = models.IntegerField(default=1)
-
+    list_view = models.IntegerField(default=0)
+    
     def __unicode__ (self):
         return self.name
 
 class UserDocument(models.Model):
 
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User,related_name = 'docsof')
     documnet = models.ForeignKey(Document)
     file = models.FileField(upload_to = getfolder)
 
     def __unicode__(self):
         return self.user.username + ' uploaded ' + self.documnet.name
+class DisplayCategory(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=250,default='')
 
+    def __unicode__ (self):
+        return self.name
+        
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
     category = models.ManyToManyField(Category)
@@ -86,6 +93,7 @@ class Question(models.Model):
     placeholder = models.CharField(max_length = 40, blank = True)
     order = models.IntegerField(default=0)
     formatType = models.CharField(max_length = 40, default='text',blank=True)
+    disp = models.ManyToManyField(DisplayCategory)
 
     def __unicode__ (self):
         return self.title
@@ -98,4 +106,6 @@ class UserAnswer(models.Model):
 
     def __unicode__(self):
         return self.user.username + ' answered ' + self.question.title
+
+
 
