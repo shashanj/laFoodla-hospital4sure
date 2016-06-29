@@ -43,10 +43,11 @@
                   <input id="ph" type="number" class=" validate" name="phone" required>
                   <label for="ph" >Phone Number</label>
                 </div>
+                <a class="waves-effect waves-light btn col s3" href="/login/">Login</a>
                 <button class="waves-effect waves-light btn col s3 col offset-s4 " id="chpn" style="align:center">Check Phone Number</button>
             {% endif %}
             {% if otp %}
-                <div class="input-field col s7">
+                <div class="input-field col s10">
 
                 <i class="material-icons prefix">phone</i>
                   <input id="otp" type="number" class=" validate" name="otp" required>
@@ -54,7 +55,8 @@
                 </div>
                 <input type="hidden" name="type" value="otp">
                 <input type="hidden" name="user" value="{{user}}">
-                <buttton class="waves-effect waves-light btn col s3 col offset-s4 " type="submit" style="align:center" form='cpform'>Change Password</buttton>
+                <a class="waves-effect waves-light btn col s3" href="/login/">Login</a>&nbsp;&nbsp;
+                <buttton class="waves-effect waves-light btn col s3 col offset-s3" type="submit" style="align:center" form='cpform'>Change Password</buttton>
             
             {% endif %}
             {% if pass %}
