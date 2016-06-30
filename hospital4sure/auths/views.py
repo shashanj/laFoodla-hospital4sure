@@ -214,7 +214,6 @@ def subcategory(request):
 def test(request):
     user = User.objects.get(username = '+911234567890')
     spec = user.answerby.filter(question__title = "Specialization")[0].answer.split('\r\n')
-    print
     return HttpResponse(len(spec))
 
 def changeotp(request):

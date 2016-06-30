@@ -86,8 +86,11 @@
             {% endfor %}
           </ul>
           {% endif %}
-
-    <h3 style="text-align: center"> Profile </h3>
+    <div class="row">
+      <a class="waves-effect waves-light btn col s3 col offset-s2" style="align:center" href="/{{user.profile.category.name}}/{{user.profile.username}}">View Profile</a>
+      <a class="waves-effect waves-light btn col s3 col offset-s2" style="align:center" href="/logout/">Logout</a>
+    </div>
+    <h3 style="text-align: center" > Profile </h3>
 
       <form id='signupform' class="col s12" action="/edit/" method="POST" enctype="multipart/form-data">{% csrf_token %}
       <div class="row  col s12" style="text-align:center">{{error}}</div>
