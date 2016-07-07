@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    
+  </head>
+  <body >
+
+
+    <div class="row container" style="margin-top:5%">
+
+      <form id='signupform' class="card col s8 col offset-s2" action="/user/book/" method="POST" style="padding:30px" name="signupform">{% csrf_token %}
+      <input type="hidden" name="with" value="{{id}}">
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+        <div class="row">
+            <div class="input-field col s6">
+            <!-- <i class="material-icons prefix">flag</i> -->
+              <select id='spec' name="spec" required>
+              <option value="" selected disabled>Choose An Option</option>
+              {% for s in spec %}
+                {% if s != '' %}
+                    <option value="{{s}}" >{{s}}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+              <label>Specialization</label>
+            </div>
+
+            {% if service != '' %}
+              <div class="input-field col s6">
+              <!-- <i class="material-icons prefix">flag</i> -->
+                <select id='service' name="service" required>
+              <option value="" selected disabled>Choose An Option</option>
+
+                {% for s in service %}
+                  {% if s != '' %}
+                      <option value="{{s}}" >{{s}}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+                <label>Services And Facilities</label>
+              </div>
+            {% endif %}
+
+
+            <div class="input-field col s6">
+              <select id='date' name="date" required>
+              <option value="" selected disabled>Choose An Option</option>
+
+              {% for s in date %}
+                {% if s != '' %}
+                    <option value="{{s}}" >{{s}}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+              <label>Next 7 dates Availble For Appointment</label>
+            </div>
+            <div class="input-field col s12">
+              <input id="times" type="text" class="timepicker" name="time" value="" required>
+              <label for="times">Tentative Date Of AppointMent</label>
+              <div id="result"></div>
+            </div>
+            <div class="input-field col s12">
+              <textarea id="comment" type="text" name="comment" class="materialize-textarea"></textarea>
+              <label for="comment">Additional Comments</label>
+            </div>
+        </div>
+        <button  class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit">BOOK APPOINTMENT</button>
+      </form>
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/jquery.timepicker.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('select').material_select();
+        $('.timepicker').timepicker({
+          timeFormat : 'HH:mm:ss',
+          interval : 60,
+          dropdown: true,
+        });
+      })
+    </script>
+  </body>

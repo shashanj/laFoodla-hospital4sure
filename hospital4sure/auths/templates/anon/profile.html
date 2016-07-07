@@ -59,14 +59,28 @@
           <ul class="right hide-on-med-and-down">
             <li><a href="#">Contact Us</a></li>
             <li><a href="#">About Us</a></li>
-            <li><a href="/login/">Login</a></li>
-            <li><a href="/signup/">SignUp</a></li>
+            <li><a href="/login/">Corporate Login</a></li>
+            <li><a href="/signup/">Corporate SignUp</a></li>
+            {% if id == -1 %}
+            <li><a href="/user/login/">Login</a></li>
+            <li><a href="/user/signup/">SignUp</a></li>
+            {% else %}
+            <li>Hi {{user.first_name}}</li>
+            <li><a href="/logout/">Logout</a></li>
+            {% endif %}
           </ul>
           <ul class="side-nav" id="mobile-demo">
             <li><a href="#">Contact Us</a></li>
             <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Corporate Login</a></li>
+            <li><a href="/signup/">Corporate SignUp</a></li>
+            {% if id == -1 %}
             <li><a href="/login/">Login</a></li>
             <li><a href="/signup/">SignUp</a></li>
+            {% else %}
+            <li>Hi {{user.first_name}}</li>
+            <li><a href="/logout/">Logout</a></li>
+            {% endif %}
           </ul>
         </div>
       </nav>
@@ -173,6 +187,7 @@
               <ul class="tabs">
                 <li class="tab col s3"><a href="#test1" class="active" >OverView</a></li>
                 <li class="tab col s3"><a href="#test2">Services</a></li>
+                <li class="tab col s3"><a href="#test5">Reviews</a></li>
                 <li class="tab col s3"><a href="#test3">Images</a></li>
                 <li class="tab col s3"><a href="#test4" id="mapshw" >Map</a></li>
               </ul>
@@ -264,6 +279,37 @@
               <br>
                 <div id="map" style="height:400px"></div>
                 <input type="hidden" id="location" value="{{usr.location}}" />
+              </div>
+
+              <div id="test5" class="row col offset-s1 col s10">
+                {% if id != -1 %}
+                  {% for review in usr.review %}
+                    <div class="card col s10">
+                      <div class="card-content">
+                        <div class="grey-text text-darken-4">
+                          {{ review.by.first_name|upper }}
+                        </div>
+                        <span>{{ review.text|linebreaksbr }}</span>
+                      </div>
+                    </div>
+                  {% endfor %}
+                  {% if id == 0 %}
+                  <div class="card col s11">
+                    <form method="POST" action="/user/review/">
+                    {% csrf_token %}
+                      <div class="row">
+                        <div class="input-field col s12">
+                          <textarea id="review" name="review" required class="materialize-textarea"></textarea>
+                          <label for="review">Write Your Review </label>
+                          <input type="hidden" name="of" value="{{usr.id}}">
+                          <input type="hidden" name="url" value="{{url}}">
+                        </div>
+                        <button  class="waves-effect waves-light btn col s3 col offset-s5" style="align:center;" type="submit">Submit</button>
+                      </div>
+                    </form>
+                  </div>
+                  {% endif %}
+                {% endif %}
               </div>
               
 

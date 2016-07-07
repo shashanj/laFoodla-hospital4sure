@@ -75,6 +75,8 @@ class UserDocument(models.Model):
 
     def __unicode__(self):
         return self.user.username + ' uploaded ' + self.documnet.name
+
+        
 class DisplayCategory(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=250,default='')
@@ -93,7 +95,7 @@ class Question(models.Model):
     placeholder = models.CharField(max_length = 40, blank = True)
     order = models.IntegerField(default=0)
     formatType = models.CharField(max_length = 40, default='text',blank=True)
-    disp = models.ManyToManyField(DisplayCategory)
+    disp = models.ManyToManyField(DisplayCategory,blank=True)
 
     def __unicode__ (self):
         return self.title

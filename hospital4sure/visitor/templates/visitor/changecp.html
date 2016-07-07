@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+    </style>
+    
+  </head>
+  <body >
+
+    <div class="row container" style="margin-top:5%">
+          <form action="/user/checkph/" method="POST" id='cpform'>{% csrf_token %}
+            <div class="row col s8 col offset-s2">
+            {{error}}
+            {% if  phone %}
+              <h4 class="">Enter Your Mobile Number</h4>
+            {% endif %}
+            {% if  otp %}
+              <h4 class="">Enter Your OTP</h4>
+            {% endif %}
+            {% if phone %}
+                <div class="input-field col s5 ">
+                <i class="material-icons prefix">flag</i>
+                  <select id='is' name="isd">
+                  </select>
+                </div>
+                <input type="hidden" name="type" value="phone">
+                <div class="input-field col s7 ">
+                <i class="material-icons prefix">phone</i>
+                  <input id="ph" type="number" class=" validate" name="phone" required>
+                  <label for="ph" >Phone Number</label>
+                </div>
+                <a class="waves-effect waves-light btn col s3" href="/user/login/">Login</a>
+                <button class="waves-effect waves-light btn col s3 col offset-s4 " id="chpn" style="align:center">Check Phone Number</button>
+            {% endif %}
+            {% if otp %}
+                <div class="input-field col s10">
+
+                <i class="material-icons prefix">phone</i>
+                  <input id="otp" type="number" class=" validate" name="otp" required>
+                  <label for="otp" >OTP</label>
+                </div>
+                <input type="hidden" name="type" value="otp">
+                <input type="hidden" name="user" value="{{user}}">
+                <a class="waves-effect waves-light btn col s3" href="/user/login/">Login</a>&nbsp;&nbsp;
+                <buttton class="waves-effect waves-light btn col s3 col offset-s3" type="submit" style="align:center" form='cpform'>Change Password</buttton>
+            
+            {% endif %}
+            {% if pass %}
+            	<input type="hidden" name="type" value="pass">
+                <input type="hidden" name="user" value="{{user}}">
+		          <div class="input-field col s12">
+		            <i class="material-icons prefix">visibility</i>
+		            <input id="password" type="password" class="validate" name="password" required>
+		            <label for="password">Password</label>
+		          </div>
+		          <div class="input-field col s12">
+		            <i class="material-icons prefix">visibility</i>
+		            <input id="cp" type="password" class="validate" name="cp" required>
+		            <label id="lforcp" for="text">Confirm Password</label>
+		          </div>
+		        <buttton class="waves-effect waves-light btn col s3 col offset-s4 " id="passs" type="submit" style="align:center" form='cpform' onclick="sub()" >Change</buttton>
+            {% endif %}
+            </div>
+          </form>
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+      isdcodes();
+      // $('select').material_select();
+    });
+
+    function sub(){
+      $('#cpform').submit()
+    }
+    function isdcodes(){
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "https://gist.githubusercontent.com/Goles/3196253/raw/9ca4e7e62ea5ad935bb3580dc0a07d9df033b451/CountryCodes.json/",
+      })
+      .error(function(){
+      	var x = jQuery('<option/>', {        
+	          text : 'India' +' - ' + '+91',
+	          value : '+91',
+	          selected : "",
+	          style : "text-align:center",
+        })
+        x.appendTo('#is')
+        $('#is').material_select();
+
+      })
+      .done(function(data) {
+        data = JSON.parse(data)
+        data[198].dial_code = "+600";
+        // var max = {"length": "", "val": } 
+        for (var i = 0; i < data.length; i++) {
+          if(data[i].dial_code == "+91"){
+            var ind = jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  selected : "",
+                  style : "text-align:center",
+              })
+            ind.appendTo('#is');
+            
+          }
+          else{
+            var rest = jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  style : "text-align:center",
+              })
+              rest.appendTo('#is');
+            }
+          }
+          $('#is').material_select();
+
+      })
+    }
+    </script>
+  </body>

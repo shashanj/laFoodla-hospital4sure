@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+    </style>
+    
+  </head>
+  <body >
+
+    <div class="row container" style="margin-top:5%">
+
+      <form id='signupform' class="card col s8 col offset-s2" action="/user/signupprocess/" method="POST" style="padding:30px" name="signupform">{% csrf_token %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+        <div class="row">
+            <div class="input-field col s6">
+            <i class="material-icons prefix">user</i>
+              <input id="fn" type="text" class=" validate" name="fn" required>
+              <label for="fn" >First Name</label>
+            </div>
+            <div class="input-field col s6">
+            <i class="material-icons prefix">user</i>
+              <input id="ln" type="text" class=" validate" name="ln" required>
+              <label for="ln" >Last Name</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s5">
+            <i class="material-icons prefix">flag</i>
+
+              <select id='isd' name="isd">
+              </select>
+            </div>
+            <div class="input-field col s7">
+            <i class="material-icons prefix">phone</i>
+              <input id="username" type="number" class=" validate" name="username" required>
+              <label for="username" >Phone Number</label>
+            </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">mail</i>
+            <input id="email" type="email" class="validate" name="email" required>
+            <label for="email">Email</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">visibility</i>
+            <input id="password" type="password" class="validate" name="password" required>
+            <label for="password">Password</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">visibility</i>
+            <input id="cp" type="password" class="validate" name="cp" required>
+            <label id="lforcp" for="text">Confirm Password</label>
+          </div>
+        </div>
+        <div class="row">
+        <div class="col s12" style="text-align:center">
+          <h6> Do you agree to our Terms And Conditions </h6>
+        </div>
+          <div class="col offset-s4 col s4 switch">
+            <label>
+              No
+              <input checked type="checkbox" required>
+              <span class="lever"></span>
+              Yes
+            </label>
+          </div>
+        </div>
+        <button  class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit">Register</button>
+        <input type="hidden" value="{{otp}}" id="ot" name="">
+      </form>
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+      isdcodes();
+      callcat();
+      $('select').material_select();
+      $('#cat').on('change',callsubcat);
+    });
+
+
+    function isdcodes(){
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "https://gist.githubusercontent.com/Goles/3196253/raw/9ca4e7e62ea5ad935bb3580dc0a07d9df033b451/CountryCodes.json/",
+      })
+      .error(function(){
+      	jQuery('<option/>', {        
+	          text : 'India' +' - ' + '+91',
+	          value : '+91',
+	          selected : "",
+	          style : "text-align:center",
+        }).appendTo('#isd');
+          $('#isd').material_select();
+
+      })
+      .done(function(data) {
+        data = JSON.parse(data)
+        data[198].dial_code = "+600";
+        // var max = {"length": "", "val": } 
+        for (var i = 0; i < data.length; i++) {
+          if(data[i].dial_code == "+91"){
+            var ind = jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  selected : "",
+                  style : "text-align:center",
+              }).appendTo('#isd');
+          }
+          else{
+            jQuery('<option/>', {        
+                  text : data[i].name +' - ' +data[i].dial_code,
+                  value : data[i].dial_code,
+                  style : "text-align:center",
+              }).appendTo('#isd');
+            }
+          }
+          $('#isd').material_select();
+
+      })
+    }
+    function callcat(){
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "/category/",
+          data : {
+            'csrf' : '{{ csrf_token }}'
+          }
+      })
+      .done(function(data) {
+          // $('#cat').material_select('destroy');
+          cat = JSON.parse(data).data
+          $.each(cat, function(i){                
+              jQuery('<option/>', {        
+                  text : cat[i].name,
+                  value : cat[i].id,
+              }).appendTo('#cat');
+          })
+          $('#cat').material_select();
+      })
+    }
+
+    function callsubcat(){
+      // $('#subcat').material_select('destroy');
+      $('.rem').remove()
+      cat = $('#cat').val()
+      var jqxhr = $.ajax({
+          method : 'GET',
+          url : "/subcategory/",
+          data : {
+            'csrf' : '{{ csrf_token }}',
+            'id' : cat,
+          }
+      })
+      .done(function(data) {
+          cat = JSON.parse(data).data
+          $.each(cat, function(i){                
+              jQuery('<option/>', {        
+                  text : cat[i].name,
+                  value : cat[i].id,
+                  class : 'rem'
+              }).appendTo('#subcat');
+          })
+          $('#subcat').material_select();
+      })
+
+    }
+    </script>
+  </body>

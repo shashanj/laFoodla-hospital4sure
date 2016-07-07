@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaFoodLa </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+    </style>
+    
+  </head>
+  <body style="background-color:#eee">
+
+    <div class="row container" style="margin-top:10%">
+
+      <form id='verification' class="card col s8 col offset-s2 teal darken-1" action="/user/sendotp/" method="POST" style="padding:30px" name="verification">{% csrf_token %}
+      <div class="card-content white-text">
+          <span class="card-title white-text text-darken-1">
+            Verify Your Mobile
+          </span>
+          <p> Enter the 6 digit OTP received by your mobile</p>
+          <p>{{error}}</p>
+      </div>
+        <div class="input-field col s10 ">
+          <i class="material-icons prefix">phone</i>
+          <input id="otp" type="text" class="validate" name="otp" required>
+          <label for="otp">One Time Password</label>
+        </div>
+        <div class="col s12">
+          <a class="waves-effect waves-light  col s3 col offset-s7" onclick="changeotp()">Send Otp Again</a>
+        </div>
+        <button  class="waves-effect waves-light btn col s3 col offset-s1" style="align:center"
+        type="submit">Verify</button>
+
+      </form>
+
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      function changeotp(argument) {
+        var jqxhr = $.ajax({
+          url : "/user/changeotp/",
+      })
+      .done(function(data){
+        jQuery('<p/>', {        
+                text : data,
+            }).appendTo('.card-content');
+      })
+    }
+    </script>
+  </body>

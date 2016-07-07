@@ -21,6 +21,7 @@ from auths import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^user/', include('visitor.urls')),
     url(r'^$', views.index , name='index' ),
     url(r'^signup/$', views.signup , name='signup' ),
     url(r'^logout/$', views.logoutuser , name='logoutuser' ),

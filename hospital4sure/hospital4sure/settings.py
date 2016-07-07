@@ -28,6 +28,13 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'hospital4sure'
+EMAIL_HOST_PASSWORD = 'contactum4'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = False
+
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -38,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'auths',
+    'visitor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -56,7 +64,10 @@ ROOT_URLCONF = 'hospital4sure.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'auths/templates')],
+        'DIRS': [   
+                    os.path.join(BASE_DIR,'auths/templates'),
+                    os.path.join(BASE_DIR,'visitor/templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,6 +114,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'auth/static'),
+    os.path.join(BASE_DIR,'visitor/static'),
 ]
 
 MEDIA_URL = '/media/'

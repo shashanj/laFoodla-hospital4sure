@@ -5,7 +5,7 @@ from .models import *
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["title","order"]
+    list_display = ["title","order","type"]
 
 
 admin.site.register(Category)

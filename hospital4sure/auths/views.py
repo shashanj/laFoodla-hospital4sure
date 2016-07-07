@@ -11,9 +11,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core import management
 from auths.management.commands import sendotp
 from auths.models import *
+from visitor.models import *
 import random, string, json, re, urllib2 , urllib, ast
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg
 
 
 # Create your views here.
@@ -32,25 +33,29 @@ def index(request):
         pass
 
     if 'userid' not in request.session:
-        id = [1,2,4,3,5]
-        cat_id = Category.objects.filter(id__in = id)
-        print cat_id
-        for cat in cat_id:
-            cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
-        context = {
-            'cat' : cat_id,
-        }
-        return render_to_response('anon/index.html',context,RequestContext(request))
+        return HttpResponseRedirect('/user/')
+        # id = [1,2,4,3,5]
+        # cat_id = Category.objects.filter(id__in = id)
+        # print cat_id
+        # for cat in cat_id:
+        #     cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
+        # context = {
+        #     'cat' : cat_id,
+        # }
+        # return render_to_response('anon/index.html',context,RequestContext(request))
 
-    profile = User.objects.get(id = request.session['userid']).profile
-    
-    if profile.verfied == 0 :
-    	return HttpResponse('Your Mobile Number Is not Yet Verified. <a href="/sendotp/">Click Here</a> To verify.')
+    try :        
+        profile = User.objects.get(id = request.session['userid']).profile
+        
+        if profile.verfied == 0 :
+        	return HttpResponse('Your Mobile Number Is not Yet Verified. <a href="/sendotp/">Click Here</a> To verify.')
 
-    if profile.register == 0 :
-        return HttpResponseRedirect('/form/')
+        if profile.register == 0 :
+            return HttpResponseRedirect('/form/')
 
-    return HttpResponseRedirect('/profile/')
+        return HttpResponseRedirect('/profile/')
+    except :
+        return HttpResponseRedirect('/user/')
 
 def signup(request):
     try:
@@ -306,7 +311,7 @@ def form(request):
         first = questions.filter(order = 1)[0]
         for ques in questions:
             if len(ques.options) != 0:
-                option.append({'id': ques.id,'options' : ques.options.split('\n')})
+                option.append({'id': ques.id,'options' : ques.options.split('\r\n')})
         context = {
                 'first' : first,
                 'cat' : category,
@@ -333,6 +338,7 @@ def submit(request):
                 questions = Question.objects.filter(category = category)
 
             for ques in questions:
+                print ques.title
                 if ques.type < 3 :
                     if ques.require == 'required':
                         try :
@@ -417,7 +423,7 @@ def submit(request):
                     if ques.require == 'required':
                         try:
                             ans = []
-                            options = ques.options.split('\n')
+                            options = ques.options.split('\r\n')
                             js = request.POST.getlist(str(ques.id))
                             i = 0                    
                             while(i<len(js)):
@@ -659,7 +665,7 @@ def edit(request):
                         messages.add_message(request,messages.ERROR, '%s is required' %ques.title)
                         
                 else:
-                    ans = str(request.POST.get(str(ques.id)))
+                    ans = (request.POST.get(str(ques.id)))
                     print ans,'else'
                         
             elif ques.type == 3 :
@@ -733,7 +739,7 @@ def edit(request):
                 if ques.require == 'required':
                     try:
                         ans = []
-                        options = ques.options.split('\n')
+                        options = ques.options.split('\r\n')
                         js = request.POST.getlist(str(ques.id))
                         i = 0                    
                         while(i<len(js)):
@@ -835,11 +841,18 @@ def edit(request):
             try :
                 if request.FILES['file_'+ str(docs.id)].content_type.lower() in typee:
                     if docs.MaxSize*1024*1024 > request.FILES['file_'+ str(docs.id)].size:
-                        doc = UserDocument.objects.filter(user = user).filter(documnet = docs)[0]
-                        doc.user = user
-                        doc.documnet = docs
-                        doc.file = request.FILES['file_'+ str(docs.id)]
-                        doc.save()
+                        try:
+                            doc = UserDocument.objects.filter(user = user).filter(documnet = docs)[0]
+                            doc.user = user
+                            doc.documnet = docs
+                            doc.file = request.FILES['file_'+ str(docs.id)]
+                            doc.save()
+                        except Exception, e:
+                            doc = UserDocument()
+                            doc.user = user
+                            doc.documnet = docs
+                            doc.file = request.FILES['file_'+ str(docs.id)]
+                            doc.save()
                     else:
                         user.profile.register = 0
                         user.profile.save()
@@ -850,6 +863,7 @@ def edit(request):
                     messages.add_message(request,messages.ERROR, '%s Invalid File type' %docs.name)
             except Exception, e:
                 print e
+                
 
         return HttpResponseRedirect('/profile/')
 
@@ -989,7 +1003,6 @@ def search(request):
         city = request.POST.get('city')
         landmark = request.POST.get('locality')
         cat = request.POST.get('category')
-        print cat
 
         if landmark != '' :
             user = User.objects.filter(profile__category = cat)
@@ -1008,7 +1021,24 @@ def search(request):
             usr.name = usr.answerby.filter(question__order = 1)[0].answer
             usr.spec = usr.answerby.filter(question__title = "Specialization")[0].answer.split('\r\n')
             doc = Document.objects.filter(category = cat, list_view = 1)[0]
-            usr.doc = usr.docsof.filter(documnet = doc)[0].file 
+            usr.doc = usr.docsof.filter(documnet = doc)[0].file
+            usr.totalrating = Rating.objects.filter(of = usr).aggregate(Avg('amount'))
+            usr.totalrating = usr.totalrating['amount__avg']
+            if 'userid' in request.session:
+                try :
+                    usr.rating = Rating.objects.filter(by = User.objects.get(id = request.session['userid']), of = usr)[0].amount
+                except Exception,e :
+                    usr.rating = ''
+            else :
+                usr.rating = ''
+
+        if 'userid' not in request.session:
+            usrid = -1
+        else :
+            if UserProfile.objects.filter(user = request.session['userid']).exists():
+                usrid =-1
+            else :
+                usrid = 1
                        
         context = {
             'users' : user,
@@ -1018,6 +1048,7 @@ def search(request):
             'cat' : Category.objects.all(),
             'spec' : spec,
             'catname' : Category.objects.get(id = cat),
+            'usrid': usrid,
         }
         return render_to_response('anon/list.html',context,RequestContext(request))
 
@@ -1038,12 +1069,33 @@ def viewprofile(request,category_name,username):
 
     user.add = user.address.filter(type='complete')[0]
     user.name = user.answerby.filter(question__order = 1)[0].answer
-    user.fb = user.answerby.filter(question__title = "FaceBook Page Link")[0].answer
+    try:
+        user.fb = user.answerby.filter(question__title = "FaceBook Page Link")[0].answer
+    except Exception, e:
+        user.fb = ''
+    
     doc = Document.objects.filter(category__name = category_name , list_view = 1)[0]
     user.doc = user.docsof.filter(documnet = doc)[0].file
     user.file = user.docsof.filter(user = user, documnet__Format__icontains = 'image')[:4]
     user.location = user.answerby.filter(question__title = "Locate On Map")[0].answer
+    if 'userid' not in request.session :
+        id = -1
+    else :
+        if UserProfile.objects.filter(user = request.session['userid']).exists():
+            id =-1
+        else :
+            if Review.objects.filter(by = request.session['userid'], of = user).exists():
+                id = 1
+            else:
+                id = 0
+
+    user.review = Review.objects.filter(of = user)[:10]
+
+
+
     context = {
+            'url' : '/' + category_name + '/' + username + '/',
+            'id' : id , 
             'usr' : user,
             'catname' : category_name,
             'cat' : Category.objects.all(),
