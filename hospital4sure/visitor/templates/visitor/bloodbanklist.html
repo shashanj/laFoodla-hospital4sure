@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en" ng-app='bloodbank'>
+  <head>
+    {% load static %}
+
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> LaffoddLa</title>  
+
+    <style type="text/css">
+      ul{
+        margin : 0;
+      }
+      #city{
+        margin: 0 !important;
+      }
+      #city:focus{
+        border-bottom: 2px solid #ccc !important;
+      }
+      li{
+        text-decoration:none;
+      }
+      .btyp>li{
+        display:inline-block;
+      }
+      .autocomplete li {
+        border-bottom: 1px solid #ccc;
+        border-left: 2px solid #ccc;
+        border-right: 2px solid #ccc;
+        height: auto;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 5px;
+        box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);  
+        white-space: normal; }
+      .autocomplete .item-title{
+        display: block;
+        line-height: 1; 
+      }
+      #search{
+        background-color: yellow;
+        border: 2px solid yellow;
+      }
+         
+       /*demo-specific*/
+      .showbox {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 7%;
+      }
+       /*end demo-specific*/
+
+      .loader {
+        /*position: relative;*/
+        margin: 0px auto;
+        width: 100px;
+        &:before {
+          content: '';
+          display: block;
+          padding-top: 100%;
+        }
+      }
+
+      .circular {
+        animation: rotate 2s linear infinite;
+        height: 100%;
+        transform-origin: center center;
+        width: 40%;
+        /*position: absolute;*/
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+      }
+
+      .path {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+        animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+        stroke-linecap: round;
+      }
+
+      @keyframes rotate {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes dash {
+        0% {
+          stroke-dasharray: 1, 200;
+          stroke-dashoffset: 0;
+        }
+        50% {
+          stroke-dasharray: 89, 200;
+          stroke-dashoffset: -35px;
+        }
+        100% {
+          stroke-dasharray: 89, 200;
+          stroke-dashoffset: -124px;
+        }
+      }
+
+      @keyframes color {
+        100%,
+        0% {
+          stroke: #d62d20;
+        }
+        40% {
+          stroke: #0057e7;;
+        }
+        66% {
+          stroke: #008744;
+        }
+        80%,
+        90% {
+          stroke: #ffa700;
+        }
+      }
+    </style>
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
+    <link rel="stylesheet" href="{% static "css/jquery-ui.min.css "%}">
+
+    
+  </head>
+  <body>
+    <div class="section no-pad-bot" id="index-banner">
+        <div class="container">
+          <nav >
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">Logo</a>
+          <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Corporate Login</a></li>
+            <li><a href="/signup/">Corporate SignUp</a></li>
+            <li><a href="#">View BloodBanks</a></li>
+            {% if userid == -1 %}
+            <li><a href="/user/login/">Login</a></li>
+            <li><a href="/user/signup/">SignUp</a></li>
+            {% else %}
+            <li>Hi {{user.first_name}}</li>
+            <li><a href="/logout/">Logout</a></li>
+            {% endif %}
+          </ul>
+          <ul class="side-nav" id="mobile-demo">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/login/">Corporate Login</a></li>
+            <li><a href="/signup/">Corporate SignUp</a></li>
+            {% if userid == -1 %}
+            <li><a href="/login/">Login</a></li>
+            <li><a href="/signup/">SignUp</a></li>
+            {% else %}
+            <li>Hi {{user.first_name}}</li>
+            <li><a href="/logout/">Logout</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+        </div>
+      </div>
+
+      {% verbatim %}
+      <div class="container" style="margin-top:35px" ng-controller="InputController">
+        <div class="row">
+          <div class="input-field col s5 col offset-s2">
+            <div class="input-field">
+              <input id="city" type="search" ng-model="city" ng-change="autocomplete()" style=" text-transform: capitalize">
+              <label id='labelforsearch' for="city"><i class="material-icons">search</i></label>
+              <i class="material-icons close" ng-click='inpclear()'>close</i>
+            </div>  
+            <ul class="autocomplete" >
+              <li ng-repeat="item in result" ng-show=type >
+              <a ng-click="inputchange(item.city)" href>
+                <span class="item-title" style=" text-transform: capitalize;">
+                  {{item.city}}
+                </span>
+              </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col s1">
+            <button class=" btn-floating btn-medium wave-effect wave-light red " ng-click='getbloodbank()'>
+              <i class="material-icons">add</i>
+            </button>
+          </div>
+
+
+          <div class="input-field col s4">
+            <select ng-model="selectbbtype" required  style="z-index:-999"
+            ng-options= "k for (k,v) in bloodgroup" ng-change="resetshowbbunit()" ng-init="selectbbtype='Aplus'">
+            </select>
+          </div>
+           <!-- loader -->
+          <div class="showbox" ng-show=search>
+            <div class="loader">
+              <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10"/>
+              </svg>
+            </div>
+          </div>
+          <!-- end loader -->
+
+        <!-- show data -->
+        <div class="row">
+        <div class="col s6" ng-repeat="user in bloodbank|filter : greaterthan(getfield(selectbbtype),0)" style="height:480px">
+          <div class="card " >
+            <div class="card-content ">
+                <span class="card-title activator grey-text text-darken-4" style="vertical-align:top;text-transform:capitalize;"><img class="activator" src="/static/images/index.jpg" width="50" height="40" style="margin-right:20px">{{user.name}}<i class="material-icons right">more_vert</i></span>
+                <address style="text-transform:capitalize;cursor:pointer" class="activator" >
+                  <pre  class="activator" >{{user.address}}</pre>
+                </address> 
+                <pre class="activator">{{user.timings}}</pre>
+                <pre class="activator">Last Updated : {{user.update}}</pre>           
+                <a href class="activator">Phone Number : {{user.user}}</a>
+            </div>
+            <div class="card-reveal teal">
+              <span class="card-title grey-text text-darken-4" style="text-transform:capitalize;">{{user.name}}<i class="material-icons right">close</i></span>
+              <ul>
+              <h6>Avaliabilty Of Diffferent Type Of Blood Types</h6>
+                <li class="col s4" style="padding:10px" >A+ : {{user.Aplus}}</li>
+                <li class="col s4" style="padding:10px">A- : {{user.Aminus}}</li>
+                <li class="col s4" style="padding:10px">B+ : {{user.Bplus}}</li>
+                <li class="col s4" style="padding:10px">B- : {{user.Bminus}}</li>
+                <li class="col s4" style="padding:10px">AB+ : {{user.ABplus}}</li>
+                <li class="col s4" style="padding:10px">AB- : {{user.ABminus}}</li>
+                <li class="col s4" style="padding:10px">O+ : {{user.Oplus}}</li>
+                <li class="col s4" style="padding:10px">O- : {{user.Ominus}}</li>
+                <li class="col s4" style="padding:10px">ffp : {{user.ffp}}</li>
+                <li class="col s4" style="padding:10px">plt : {{user.plt}}</li>
+                <li class="col s4" style="padding:10px">cry : {{user.cry}}</li>
+                <li class="col s4" style="padding:10px">lpl : {{user.lpl}}</li>
+                <li class="col s4" style="padding:10px">aph : {{user.aph}}</li>
+                <li class="col s4" style="padding:10px">unt : {{user.unt}}</li>
+                <li class="col s4" style="padding:10px">ca+ : {{user.caplus}}</li>
+                <li class="col s4" style="padding:10px">ca- : {{user.caminus}}</li>
+                <li class="col s4" style="padding:10px">cb+ : {{user.cbplus}}</li>
+                <li class="col s4" style="padding:10px">cb- : {{user.cbminus}}</li>
+                <li class="col s4" style="padding:10px">cab+ : {{user.cabplus}}</li>
+                <li class="col s4" style="padding:10px">cab- : {{user.cabminus}}</li>
+                <li class="col s4" style="padding:10px">co+ : {{user.coplus}}</li>
+                <li class="col s4" style="padding:10px">co- : {{user.cominus}}</li>
+              </ul>
+            </div>
+
+            <div class="card-action">
+            <ul class="btyp">
+              <li><a target="_blank" href="https://maps.google.com/maps?daddr={{user.gpslocation}}&amp;ll=">Start Navigation</a></li>
+              <li><div class="input-field">
+                <select ng-model="$index" required ng-init="startselect(user.name)" style="z-index:-999" ng-change="showunit(user.name)">
+                  <option ng-value="{{user.Aplus}}"> A+ </option>
+                  <option ng-value="{{user.Aminus}}"> A- </option>
+                  <option ng-value="{{user.Bplus}}"> B+ </option>
+                  <option ng-value="{{user.Bminus}}"> B- </option>
+                  <option ng-value="{{user.ABplus}}"> AB+ </option>
+                  <option ng-value="{{user.ABminus}}"> AB- </option>
+                  <option ng-value="{{user.Oplus}}"> O+ </option>
+                  <option ng-value="{{user.Ominus}}"> O- </option>
+                  <option ng-value="{{user.ffp}}"> ffp </option>
+                  <option ng-value="{{user.cry}}"> cry </option>
+                  <option ng-value="{{user.lpl}}"> lpl </option>
+                  <option ng-value="{{user.aph}}"> aph </option>
+                  <option ng-value="{{user.unt}}"> unt </option>
+                  <option ng-value="{{user.caplus}}"> ca+ </option>
+                  <option ng-value="{{user.caminus}}"> ca- </option>
+                  <option ng-value="{{user.cbplus}}"> cb+ </option>
+                  <option ng-value="{{user.cbminus}}"> cb- </option>
+                  <option ng-value="{{user.cabplus}}"> cab+ </option>
+                  <option ng-value="{{user.cabminus}}"> cab- </option>  
+                  <option ng-value="{{user.coplus}}"> co+ </option>
+                  <option ng-value="{{user.cominus}}"> co- </option>
+                </select>
+                <label >Blood Type</label>
+              </div></li>
+              <li><p ng-bind="$index" ng-show="field[user.name]" id="$index"></p></li>
+            </div>
+          </div>
+        </div>
+        </div>
+        <!-- end showing data -->    
+      </div>
+      {% endverbatim %}
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/angular.min.js" %}"></script>
+    <!-- <script src="{% static "js/jquery-ui-1.8.24.min.js" %}"></script> -->
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      var bloodbank = angular.module('bloodbank',[]);
+      bloodbank.controller('InputController',["$scope","$http",InputController])
+
+      function InputController($scope, $http){
+
+        fieldmap = {"A+" : "Aplus" ,"A-" : "Aminus" ,"B+" : "Bplus" , "B-" : "Bminus",
+                     "AB+": "ABplus","AB-": "ABminus", "O+" : "Oplus", "O-": "Ominus",
+                     "ca+" : "caplus" ,"ca-" : "caminus" ,"cb+" : "cbplus" , "cb-" : "cbminus",
+                     "cab+": "cabplus","cab-": "cabminus", "co+" : "coplus", "co-": "cominus",
+                     "ffp" : "ffp", "lpl" : "lpl", "unt":"unt", "cry":"cry" ,"aph" : "aph",
+                    }
+
+        $scope.bloodgroup = fieldmap
+
+        $scope.search = false
+        $scope.type = false
+        $scope.unit = false       
+        $scope.field = []
+
+        $scope.resetshowbbunit = function(){
+          for (var i = $scope.field.length - 1; i >= 0; i--) {
+            $scope.field[i] = false
+          }
+        }
+
+        $scope.showunit = function(counter){
+          $scope.field[counter.toString()] = true
+        }
+
+        $scope.getfield = function(field){
+          console.log(field)
+          return field
+        }
+        $scope.greaterthan = function(field,value){
+          return function(item){
+            console.log(field)
+            if(field == '' || field == undefined){
+              return item
+            }
+            return item[field] > value;
+          }
+        }
+        
+        $scope.startselect = function(counter){
+          $scope.field[counter.toString()] = false
+          jQuery('select').material_select();
+        }
+        $scope.autocomplete = function(){
+          var city = $scope.city
+          if( city.length > 1){
+            var request = {
+              method: 'POST',
+              url: '/getbbcities/',
+              data : {
+                'cite' : city
+              }  
+            }
+            $http(request)
+              .success(function(data) {
+                $scope.type = true
+                $scope.result = data.data
+              })
+              .error(function(data) {
+                console.log("data")
+              });
+          }
+        }
+
+        $scope.inputchange = function(city){
+          $scope.city = city
+          $scope.type = false
+          $scope.search = true
+          label = angular.element(document.querySelector('#labelforsearch'))
+          label.removeAttr('class')
+          getbloodbank(city)
+        }
+
+        $scope.inpclear = function(){
+          $scope.city = ""
+          $scope.type = false
+          label = angular.element(document.querySelector('#labelforsearch'))
+          label.removeAttr('class')
+        }
+
+        function getbloodbank(city){
+          var request = {
+            method : 'POST',
+            url : '/getbloodbank/',
+            data : {
+              'city' : city
+            }
+          }
+          $http(request)
+            .success(function(data){
+              var user = angular.fromJson(data.data)
+              $scope.search = false
+              $scope.bloodbank = user
+            })
+            .error(function(data){
+
+            })
+        }
+      }
+      
+    </script>
+  </body>

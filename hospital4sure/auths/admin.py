@@ -17,3 +17,5 @@ admin.site.register(UserDocument)
 admin.site.register(Question,QuestionAdmin)
 admin.site.register(UserAnswer)
 admin.site.register(DisplayCategory)
+admin.site.register(BloodBankUser)
+

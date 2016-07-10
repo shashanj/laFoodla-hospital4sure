@@ -38,9 +38,13 @@ urlpatterns = [
     url(r'^edit/$', views.edit , name='edit' ),
     url(r'^checkph/$', views.checkph , name='checkph' ),
     url(r'^search/$', views.search , name='search' ),
+    url(r'^bloodbank/$', views.bloodbank , name='bloodbank' ),
+    url(r'^update-bloodbank/$', views.updatebloodbank , name='updatebloodbank' ),
     url(r'^get-cities/$', views.getcities , name='get-cities' ),
     url(r'^get-local/$', views.getlocal , name='get-local' ),
     url(r'^get-spec/$', views.getspec , name='get-spec' ),
+    url(r'^getbbcities/$', views.bbcities , name='getbbcities' ),
+    url(r'^getbloodbank/$', views.getbloodbank , name='getbloodbank' ),
     url(r'^(?P<category_name>[a-z,A-Z,0-9-]+)/(?P<username>[a-z,A-Z,0-9-]+)/$', views.viewprofile , name='viewprofile' ),
     url(r'^link/(?P<category_name>[a-z,A-Z,0-9-]+)/(?P<spec>[a-z,A-Z,0-9,\s-]+)/$', views.searchlink , name='viewprofile' ),
     

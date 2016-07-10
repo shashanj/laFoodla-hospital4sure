@@ -109,5 +109,49 @@ class UserAnswer(models.Model):
     def __unicode__(self):
         return self.user.username + ' answered ' + self.question.title
 
+class BloodBankUser(models.Model):
+    user = models.OneToOneField(User, related_name ='bloodbank')
+    name = models.CharField(max_length = 60)
+    address = models.TextField()
+    gpslocation = models.CharField(max_length = 30)
+    logo = models.URLField()
+    city = models.CharField(max_length = 100)
+    timings = models.TextField()
+    password = models.CharField(max_length = 100)
+
+    Aplus = models.IntegerField(default = 0, verbose_name = 'A+')
+    Aminus = models.IntegerField(default = 0, verbose_name = 'A-')
+    
+    Bplus = models.IntegerField(default = 0, verbose_name = 'B+')
+    Bminus = models.IntegerField(default = 0, verbose_name = 'B-')
+
+    ABplus = models.IntegerField(default = 0, verbose_name = 'AB+')
+    ABminus = models.IntegerField(default = 0, verbose_name = 'AB-')
+
+    Oplus = models.IntegerField(default = 0, verbose_name = 'O+')
+    Ominus = models.IntegerField(default = 0, verbose_name = 'O-')
+
+    ffp = models.IntegerField(default = 0)
+    plt = models.IntegerField(default = 0)
+    cry = models.IntegerField(default = 0)
+    lpl = models.IntegerField(default = 0)
+    aph = models.IntegerField(default = 0)
+    unt = models.IntegerField(default = 0)
+
+    caplus = models.IntegerField(default = 0, verbose_name = 'ca+')
+    caminus = models.IntegerField(default = 0, verbose_name = 'ca-')
+    
+    cbplus = models.IntegerField(default = 0, verbose_name = 'cb+')
+    cbminus = models.IntegerField(default = 0, verbose_name = 'cb-')
+
+    cabplus = models.IntegerField(default = 0, verbose_name = 'cab+')
+    cabminus = models.IntegerField(default = 0, verbose_name = 'cab-')
+
+    coplus = models.IntegerField(default = 0, verbose_name = 'co+')
+    cominus = models.IntegerField(default = 0, verbose_name = 'co-')
+
+    update = models.DateTimeField(auto_now = True, editable = True)
 
 
+    def __unicode__(self):
+        return self.user.username

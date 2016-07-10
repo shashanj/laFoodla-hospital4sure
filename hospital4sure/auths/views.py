@@ -15,7 +15,7 @@ from visitor.models import *
 import random, string, json, re, urllib2 , urllib, ast
 from django.contrib import messages
 from django.db.models import Q, Avg
-
+from auths.forms import Bloodbank
 
 # Create your views here.
 
@@ -264,12 +264,14 @@ def loginuser(request):
                     login(request, user)
                     request.session['userid']=user.id
                     state = "login successfull"
-
-                    if user.profile.verfied == 0 :
-                        return HttpResponseRedirect('')
-                    if user.profile.register == 0 :
-                        return HttpResponseRedirect('/form/')
-                    return HttpResponseRedirect('/profile/')
+                    try:
+                        if user.profile.verfied == 0 :
+                            return HttpResponseRedirect('Your Mobile Number Is not Yet Verified. <a href="/sendotp/">Click Here</a> To verify.')
+                        if user.profile.register == 0 :
+                            return HttpResponseRedirect('/form/')
+                        return HttpResponseRedirect('/profile/')
+                    except :
+                        return HttpResponseRedirect('/update-bloodbank/')
                 else:
                     state = "your account is not active"
             else:
@@ -1115,3 +1117,61 @@ def searchlink(request,category_name,spec):
         mutable = False
         request.POST._mutable = mutable
         return search(request)
+
+
+@login_required(login_url = '/login/')
+def updatebloodbank(request):
+    error = ''
+    user = User.objects.get(id = request.session['userid'])
+    bloodbank = user.bloodbank
+
+    if request.POST:
+        f = Bloodbank(request.POST, instance = bloodbank)
+        try:
+            f.save()
+        except Exception, e:
+            error = e
+
+    form = Bloodbank(instance = bloodbank)
+    context = {
+        'form' : form,
+        'error' : error,
+    }
+    return render_to_response('auth/bb.html',context,RequestContext(request))
+
+
+@login_required(login_url='/user/login/')
+def bloodbank(request):
+    return render_to_response('visitor/bloodbanklist.html',RequestContext(request))
+
+
+@csrf_exempt
+def bbcities(request):
+    requestcity = json.loads(request.body)
+    city = requestcity['cite']
+    result = []
+    cities = BloodBankUser.objects.filter(Q(city__icontains = city)).values('city')
+    for city in cities:
+        if city not in result:
+            result.append(city)
+    return HttpResponse(json.dumps({"status": "Success", "message": "Category Data Fetched", "data": result},
+                                           cls=DjangoJSONEncoder))
+
+
+@csrf_exempt
+def getbloodbank(request):
+    from datetime import datetime
+    requestcity = json.loads(request.body)
+    city = requestcity['city']
+    result = []
+    serializercity = []
+    cities = BloodBankUser.objects.filter(Q(city__icontains = city)).values()
+    for city in cities:
+        del city['password']
+        city['update'] = datetime.strftime(city['update'],'%d/%m/%Y %H:%M:%S')
+        del city['id']
+        city['user'] = User.objects.get(id = city['user_id']).username
+        del city['user_id']
+        result.append(city)
+    return HttpResponse(json.dumps({"status": "Success", "message": "Category Data Fetched", "data": result},
+                                           cls=DjangoJSONEncoder))
