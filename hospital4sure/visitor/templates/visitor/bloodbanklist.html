@@ -199,7 +199,7 @@
 
           <div class="input-field col s4">
             <select ng-model="selectbbtype" required  style="z-index:-999"
-            ng-options= "k for (k,v) in bloodgroup" ng-change="resetshowbbunit()" ng-init="selectbbtype='Aplus'">
+            ng-options= "k for (k,v) in bloodgroup" ng-change="resetshowbbunit()" ng-init="selectbbtype='all'" id="call">
             </select>
           </div>
            <!-- loader -->
@@ -258,7 +258,7 @@
             <ul class="btyp">
               <li><a target="_blank" href="https://maps.google.com/maps?daddr={{user.gpslocation}}&amp;ll=">Start Navigation</a></li>
               <li><div class="input-field">
-                <select ng-model="$index" required ng-init="startselect(user.name)" style="z-index:-999" ng-change="showunit(user.name)">
+                <select ng-model="scope[$index]" required ng-init="startselect(user.name,$index)" style="z-index:2" ng-change="showunit(user.name)">
                   <option ng-value="{{user.Aplus}}"> A+ </option>
                   <option ng-value="{{user.Aminus}}"> A- </option>
                   <option ng-value="{{user.Bplus}}"> B+ </option>
@@ -283,7 +283,7 @@
                 </select>
                 <label >Blood Type</label>
               </div></li>
-              <li><p ng-bind="$index" ng-show="field[user.name]" id="$index"></p></li>
+              <li><p ng-bind="scope[$index]" ng-show="field[user.name]" id="$index"></p></li>
             </div>
           </div>
         </div>
@@ -302,7 +302,7 @@
 
       function InputController($scope, $http){
 
-        fieldmap = {"A+" : "Aplus" ,"A-" : "Aminus" ,"B+" : "Bplus" , "B-" : "Bminus",
+        fieldmap = { "all":"all" ,"A+" : "Aplus" ,"A-" : "Aminus" ,"B+" : "Bplus" , "B-" : "Bminus",
                      "AB+": "ABplus","AB-": "ABminus", "O+" : "Oplus", "O-": "Ominus",
                      "ca+" : "caplus" ,"ca-" : "caminus" ,"cb+" : "cbplus" , "cb-" : "cbminus",
                      "cab+": "cabplus","cab-": "cabminus", "co+" : "coplus", "co-": "cominus",
@@ -315,6 +315,8 @@
         $scope.type = false
         $scope.unit = false       
         $scope.field = []
+        $scope.scope = []
+        click = []
 
         $scope.resetshowbbunit = function(){
           for (var i = $scope.field.length - 1; i >= 0; i--) {
@@ -323,27 +325,27 @@
         }
 
         $scope.showunit = function(counter){
-          $scope.field[counter.toString()] = true
+            $scope.field[counter.toString()] = true
+          
         }
 
         $scope.getfield = function(field){
-          console.log(field)
           return field
         }
         $scope.greaterthan = function(field,value){
           return function(item){
-            console.log(field)
-            if(field == '' || field == undefined){
+            if(field == 'all' || field == undefined){
               return item
             }
             return item[field] > value;
           }
         }
         
-        $scope.startselect = function(counter){
+        $scope.startselect = function(counter,index){
           $scope.field[counter.toString()] = false
           jQuery('select').material_select();
         }
+
         $scope.autocomplete = function(){
           var city = $scope.city
           if( city.length > 1){
@@ -360,7 +362,7 @@
                 $scope.result = data.data
               })
               .error(function(data) {
-                console.log("data")
+                alert(data)
               });
           }
         }
@@ -379,6 +381,12 @@
           $scope.type = false
           label = angular.element(document.querySelector('#labelforsearch'))
           label.removeAttr('class')
+        }
+
+        $scope.getbloodbank = function(){
+          $scope.type = false
+          $scope.search = true
+          getbloodbank($scope.city)
         }
 
         function getbloodbank(city){

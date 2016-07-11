@@ -1125,6 +1125,8 @@ def updatebloodbank(request):
     user = User.objects.get(id = request.session['userid'])
     bloodbank = user.bloodbank
 
+    print bloodbank.name
+
     if request.POST:
         f = Bloodbank(request.POST, instance = bloodbank)
         try:
@@ -1136,6 +1138,7 @@ def updatebloodbank(request):
     context = {
         'form' : form,
         'error' : error,
+        'user' : bloodbank
     }
     return render_to_response('auth/bb.html',context,RequestContext(request))
 
@@ -1165,7 +1168,7 @@ def getbloodbank(request):
     city = requestcity['city']
     result = []
     serializercity = []
-    cities = BloodBankUser.objects.filter(Q(city__icontains = city)).values()
+    cities = BloodBankUser.objects.filter(Q(city__iexact = city)).values()
     for city in cities:
         del city['password']
         city['update'] = datetime.strftime(city['update'],'%d/%m/%Y %H:%M:%S')

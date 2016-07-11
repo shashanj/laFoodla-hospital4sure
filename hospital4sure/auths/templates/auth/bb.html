@@ -17,19 +17,37 @@
         -webkit-appearance: none; 
         margin: 0; 
       }
+      ul li {
+        display: inline-table;
+      }
       </style>
   </head>
 
 
 
   <body >
-    <div class="row container" style="margin-top:10%">
+    <div class="row container" style="margin-top:1%">
     <div class="row">
       <a class="waves-effect waves-light btn col s3 col offset-s4" style="align:center" href="/logout/">Logout</a>
     </div>
 
-    <h3 style="text-align: center"> Update Your Count </h3>
+    <table>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Gpslocation</th>
+      <th>City</th>
+      <th>Timings</th>
+      <tr>
+        <td>{{user.name}}</td>
+        <td><address>{{user.address|title}}</address></td>
+        <td><address>{{user.gpslocation|title}}</address></td>
+        <td><address>{{user.city|title}}</address></td>
+        <td><address>{{user.timings|title}}</address></td>
+      </tr>
+    </table>
+    
 
+    <h5 style="text-align: center"> Update Your Count </h5>
       <form id='signupform' class="col s12" action="/update-bloodbank/" method="POST">{% csrf_token %}
         <div class="row  col s12" style="text-align:center">{{error}}</div>
         <div class="row">
