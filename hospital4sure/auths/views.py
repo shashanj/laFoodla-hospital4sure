@@ -34,21 +34,15 @@ def index(request):
 
     if 'userid' not in request.session:
         return HttpResponseRedirect('/user/')
-        # id = [1,2,4,3,5]
-        # cat_id = Category.objects.filter(id__in = id)
-        # print cat_id
-        # for cat in cat_id:
-        #     cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
-        # context = {
-        #     'cat' : cat_id,
-        # }
-        # return render_to_response('anon/index.html',context,RequestContext(request))
 
     try :        
-        profile = User.objects.get(id = request.session['userid']).profile
+        user = User.objects.get(id = request.session['userid'])
+        profile = user.profile
         
         if profile.verfied == 0 :
-        	return HttpResponse('Your Mobile Number Is not Yet Verified. <a href="/sendotp/">Click Here</a> To verify.')
+            del request.session['userid']
+            user.delete()
+            return HttpResponseRedirect('/user/')
 
         if profile.register == 0 :
             return HttpResponseRedirect('/form/')
@@ -266,7 +260,9 @@ def loginuser(request):
                     state = "login successfull"
                     try:
                         if user.profile.verfied == 0 :
-                            return HttpResponseRedirect('Your Mobile Number Is not Yet Verified. <a href="/sendotp/">Click Here</a> To verify.')
+                            del request.session['userid']
+                            user.delete()
+                            return HttpResponseRedirect('/user/')
                         if user.profile.register == 0 :
                             return HttpResponseRedirect('/form/')
                         return HttpResponseRedirect('/profile/')
@@ -1005,12 +1001,16 @@ def search(request):
         city = request.POST.get('city')
         landmark = request.POST.get('locality')
         cat = request.POST.get('category')
+        user = ''
+
+        if cat != '':
+            user = User.objects.filter(profile__category = cat)
+        else:
+            user = User.objects.all()
 
         if landmark != '' :
-            user = User.objects.filter(profile__category = cat)
             user = user.filter(address__city__iexact = city,address__landmark__iexact = landmark,address__type = 'complete')
         else:
-            user = User.objects.filter(profile__category = cat)
             user = user.filter(address__city__iexact = city,address__type = 'complete')
 
         if request.POST.get('specialization') != '':
@@ -1022,8 +1022,8 @@ def search(request):
             usr.add = usr.address.filter(type='complete')[0]
             usr.name = usr.answerby.filter(question__order = 1)[0].answer
             usr.spec = usr.answerby.filter(question__title = "Specialization")[0].answer.split('\r\n')
-            doc = Document.objects.filter(category = cat, list_view = 1)[0]
-            usr.doc = usr.docsof.filter(documnet = doc)[0].file
+            # doc = Document.objects.filter(category = cat, list_view = 1)[0]
+            usr.doc = usr.docsof.filter(documnet__list_view = 1)[0].file
             usr.totalrating = Rating.objects.filter(of = usr).aggregate(Avg('amount'))
             usr.totalrating = usr.totalrating['amount__avg']
             if 'userid' in request.session:
@@ -1049,7 +1049,7 @@ def search(request):
             'selcat' : cat,
             'cat' : Category.objects.all(),
             'spec' : spec,
-            'catname' : Category.objects.get(id = cat),
+            # 'catname' : Category.objects.get(id = cat),
             'usrid': usrid,
         }
         return render_to_response('anon/list.html',context,RequestContext(request))

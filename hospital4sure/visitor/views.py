@@ -69,7 +69,9 @@ def index(request):
     profile =  user.visitor
     
     if profile.register == 0 :
-        return HttpResponse('Your Mobile Number Is not Yet Verified. <a href="/user/sendotp/">Click Here</a> To verify.')
+        del request.session['userid']
+        user.delete()
+        return HttpResponseRedirect('/user/')
 
     id = [1,2,4,3,5]
     cat_id = Category.objects.filter(id__in = id)
@@ -239,7 +241,9 @@ def loginuser(request):
                     state = "login successfull"
 
                     if user.visitor.register == 0 :
-                        return HttpResponse('Your Mobile Number Is not Yet Verified. <a href="/user/sendotp/">Click Here</a> To verify.')
+                        del request.session['userid']
+                        user.delete()
+                        return HttpResponseRedirect('/user/')
                     return HttpResponseRedirect('/user/')
                 else:
                     state = "your account is not active"

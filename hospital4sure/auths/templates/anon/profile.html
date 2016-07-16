@@ -96,13 +96,13 @@
           </div>
           <div class="input-field col s3">
             <i class="material-icons prefix">place</i>
-              <input id="locality" type="text" class="validate" name="locality" required value="{{locality}}">
+              <input id="locality" type="text" class="validate" name="locality" value="{{locality}}">
               <div id="localresult" style="display:block;position:relative"></div>
               <label for="locality">locality</label>
           </div>
           <div class="input-field col s3">
             <i class="material-icons prefix">view_list</i>
-                <select id='cat' name="category" required>
+                <select id='cat' name="category" >
                 {% for c in cat %}
                 	{% if c.id == selcat %}
                   		<option value="{{c.id}}" selected>{{c.name}}</option>
