@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> LaFoodLa </title>  
+    <title> Hospital4sure - Login </title>  
     <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
@@ -24,6 +24,7 @@
     <div class="row container" style="margin-top:5%">
 
       <form id='signupform' class="card col s8 col offset-s2" action="/user/login/" method="POST" style="padding:30px" name="signupform">{% csrf_token %}
+        <input type="hidden" name="next" value="{{next}}">
         {% if messages %}
           <ul class="messages">
             {% for message in messages %}

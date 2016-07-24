@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+  <head>
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Hospital4sure - Form </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css "%}">
+    <script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
+
+    <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
+    </style>
+    
+  </head>
+  <body >
+
+    <div class="row container" style="margin-top:1%">
+    <h3 style="text-align: center">  Form </h3>
+
+      <form id='signupform' class="col s12" action="/join/" method="POST" >{% csrf_token %}
+        <div class="row  col s12" style="text-align:center">{{error}}</div>
+          <div class="row">
+            <div class="input-field col s6">
+              <input id="name" type="text" class="validate" name="name" required>
+              <label for="name" >Name</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="number" type="number" class="validate" name="number" required>
+              <label for="number" >Mobile Number</label>
+            </div>
+          </div>
+           <div class="row">
+            <div class="input-field col s12">
+              <input id="collegename" type="text" class="validate" name="collegename" required>
+              <label for="collegename" >College Name</label>
+            </div>
+          </div>
+
+        <div class="row">
+        <h6>Apply For</h6>
+          {% for op in options %}
+            <p class="col s6">
+              <input type="checkbox" id="{{op.id}}" value="{{op.id}}" name="option" />
+              <label for="{{op.id}}">{{op.name}}</label>
+            </p>
+          {% endfor %}
+            <p class="col s6">
+              <div class="col s1">
+                <input type="checkbox" id="other" value="other" name="option" />
+                <label for="other">Other</label>
+              </div>
+              <div class="col s4" style="margin-top:-10px">
+                <input type="text" name="other">
+              </div>
+            </p>
+          </div>
+
+        <button class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit" form="signupform">Submit</button>
+      </form>
+    </div>
+    <script type="text/javascript" src="{% static "materialize/js/materialize.min.js" %}"></script>
+
+  </body>

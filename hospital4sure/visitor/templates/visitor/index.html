@@ -7,15 +7,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> LaffoddLa</title>  
+    <title> Hospital4sure </title>  
 
     <style type="text/css">
       li{
         text-decoration:none;
       }
     </style>
-    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet"> -->
-    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
     <link rel="stylesheet" href="{% static "css/jquery-ui.min.css "%}">
 
@@ -29,8 +29,9 @@
           <a href="#!" class="brand-logo">Hospital4sure</a>
           <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
           <ul class="right hide-on-med-and-down">
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">About Us</a></li>
+            <!-- <li><a href="#">Contact Us</a></li>
+            <li><a href="#">About Us</a></li> -->
+            <li><a href="/join/">Join Us</a></li>
             <li><a href="/login/">Corporate Login</a></li>
             <li><a href="/signup/">Corporate SignUp</a></li>
             <li><a href="/bloodbank/">View BloodBanks</a></li>
@@ -127,6 +128,16 @@
         </div>
       {% endfor %}
     </div>
+  </div>
+
+  <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red">
+      <i class="large material-icons">mode_edit</i>
+    </a>
+    <ul>
+      <li><a class="waves-effect waves-light btn red" href="/event/">View Event</a></li>
+      <li><a class="waves-effect waves-light yellow btn sdarken-1" href="/event/login/">Manage Event</a></li>
+    </ul>
   </div>
     
 

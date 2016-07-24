@@ -1143,9 +1143,31 @@ def updatebloodbank(request):
     return render_to_response('auth/bb.html',context,RequestContext(request))
 
 
-@login_required(login_url='/user/login/')
 def bloodbank(request):
-    return render_to_response('visitor/bloodbanklist.html',RequestContext(request))
+    if 'userid' not in request.session :
+        if request.POST:
+            phone = request.POST.get('isd') + request.POST.get('phone')
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+
+            temp = TemporaryBloodbankVisitor()
+            temp.phone_numeber = phone
+            temp.name = name
+            try:
+                temp.save()
+            except Exception, e:
+                return render_to_response('visitor/bloodbanklist.html',{'userid' : -1,'number' : user},RequestContext(request))
+            try : 
+                temp.email = email
+                temp.save()
+                return render_to_response('visitor/bloodbanklist.html',{'userid' : -1,'number' : user},RequestContext(request))
+            except :
+                pass
+                return render_to_response('visitor/bloodbanklist.html',{'userid' : -1,'number' : user},RequestContext(request))
+
+        return render_to_response('visitor/tempprofile.html',RequestContext(request))
+    user = User.objects.get(id = request.session['userid']).username
+    return render_to_response('visitor/bloodbanklist.html',{'userid' : 1,'number' : user[-10:]},RequestContext(request))
 
 
 @csrf_exempt
@@ -1175,6 +1197,117 @@ def getbloodbank(request):
         del city['id']
         city['user'] = User.objects.get(id = city['user_id']).username
         del city['user_id']
+        rate = Rating.objects.filter(of__username = city['user']).aggregate(Avg('amount'))
+        city['totalrating'] = rate['amount__avg']
+        reviews = Review.objects.filter(of__username = city['user']).values('text','by__first_name')
+        city['review'] = []
+        for review in reviews :
+            city['review'].append(review)
         result.append(city)
-    return HttpResponse(json.dumps({"status": "Success", "message": "Category Data Fetched", "data": result},
+
+    if 'userid' in request.session:
+        user =  User.objects.get(id = request.session['userid'])
+        try:
+            user = user.visitor
+            state = 1
+            print 'gkjgkj'
+        except Exception,e :
+            print e
+            state = 0
+    else:
+        state = 0
+    return HttpResponse(json.dumps({"status": "Success", "message": "Category Data Fetched", "data": result, "state" : state},
                                            cls=DjangoJSONEncoder))
+
+@csrf_exempt
+def bloodbankrate(request):
+    ratebody = json.loads(request.body)
+    print ratebody
+    val = ratebody['rate']
+    
+    name = ratebody['name']
+    by = User.objects.get(id = request.session['userid'])
+    of = User.objects.get(bloodbank__name__iexact = name)
+    if not Rating.objects.filter(of = of, by= by).exists():
+        new_rating = Rating()
+        new_rating.amount = val
+        new_rating.by = by
+        new_rating.of = of
+        new_rating.save()
+    else :
+        updaterating = Rating.objects.filter(of = of, by= by)[0]
+        updaterating.amount = val
+        updaterating.save()
+
+    rate = Rating.objects.filter(of = of).aggregate(Avg('amount'))
+    rate = rate['amount__avg']
+    print rate
+    return HttpResponse(json.dumps({'rate' : rate}))
+
+@csrf_exempt
+def bloodbankreview(request):
+    reviewbody = json.loads(request.body)
+    val = reviewbody['rate']    
+    name = reviewbody['name']
+    by = User.objects.get(id = request.session['userid'])
+    of = User.objects.get(bloodbank__name__iexact = name)
+
+    if not Review.objects.filter(of = of, by= by).exists():
+        new_rating = Review()
+        new_rating.text = val
+        new_rating.by = by
+        new_rating.of = of
+        new_rating.save()
+    else :
+        updaterating = Review.objects.filter(of = of, by= by)[0]
+        updaterating.text = val
+        updaterating.save()
+
+    reviews = Review.objects.filter(of = of).values('text','by__first_name')
+    rev = []
+    for review in reviews :
+        rev.append(review)
+    print rev
+    return HttpResponse(json.dumps({'review' : rev}))
+
+
+def bbsms(number,bbtype,city):
+    filter = bbtype + '__gte'
+    
+    result = BloodBankUser.objects.filter(city__iexact = city , **{filter : 1 } )
+    message = 'Your Requested list For ' + bbtype + '\n'
+    for res in result :
+        message += 'Name : ' + res.name + '\n'
+        message += 'Number : ' + res.user.username + '\n\n'
+    authkey = "116152AVn4migBYw575f1ec6"
+    sender = "HOSPTL" # Sender I
+    route = "4" # Define route
+
+    values = {
+              'authkey' : authkey,
+              'mobiles' : number,
+              'message' : message,
+              'sender' : sender,
+              'route' : route,
+    }
+    url = "https://control.msg91.com/api/sendhttp.php"
+    postdata = urllib.urlencode(values)
+    try :
+        req = urllib2.Request(url, postdata)
+        response = urllib2.urlopen(req)
+        output = response.read() # Get Response
+        print output
+    except Exception, e:
+        print e
+
+@csrf_exempt
+def bloodbanksendsms(request):
+    body = json.loads(request.body)
+    number = body['number']
+    bbtype = body['bbtype']
+    city = body['city']
+    import thread
+    thread.start_new_thread(bbsms,(number,bbtype,city))
+
+    return HttpResponse(json.dumps({'status' : 'true'}))
+

@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'auths',
     'visitor',
+    'Internal',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -90,9 +91,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'join' : {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'join.sqlite3'),
     }
 }
-
+DATABASE_ROUTERS = [
+    'Internal.InternalDbRouter.InternalDbRouter',
+    'Internal.DefaultDbRouter.DefaultDbRouter',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

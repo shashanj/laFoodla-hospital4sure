@@ -118,6 +118,7 @@ class BloodBankUser(models.Model):
     city = models.CharField(max_length = 100)
     timings = models.TextField()
     password = models.CharField(max_length = 100)
+    registration_number = models.CharField(max_length = 100,blank=True, null = True)
 
     Aplus = models.IntegerField(default = 0, verbose_name = 'A+')
     Aminus = models.IntegerField(default = 0, verbose_name = 'A-')

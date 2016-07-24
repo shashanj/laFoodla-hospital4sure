@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% load static %}
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Hospital4sure - Events </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
+  </head>
+
+  <body>
+    <div class="section no-pad-bot" id="index-banner">
+      <div class="container">
+        <nav>
+          <div class="nav-wrapper">
+            <a href="/" class="brand-logo">Hospital4sure</a>
+            <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+              <li>Hi {{event.user.name}}</li>
+              <li><a href="/event/logout/">Logout</a></li>
+            </ul>
+            <ul class="side-nav" id="mobile-demo">
+              <li>Hi {{event.user.name}}</li>
+              <li><a href="/event/logout/">Logout</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div class="row container" >
+      <form id='signupform' class="col s10" action="/event/edit/{{event.id}}/" method="POST" name="signupfomr">
+      {% csrf_token %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="name" type="text" class=" validate" name="name" required value="{{event.name}}">
+            <label for="name" >Event Name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="latest" type="text" class=" validate" name="latest" required >
+            <label for="latest" >Latest Update</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <textarea id="details" name="details" required class="materialize-textarea">{{event.details}}</textarea>
+              <label for="details">Details For the Event</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="video" type="url" class=" validate" name="video" required value="{{event.video_link}}">
+            <label for="video" >YouTube Link</label>
+          </div>
+        </div>
+        <div class="row" id="parent">
+          {% for photo in event.ph %}
+          <div class="input-field col s6" id="photo_{{forloop.counter}}">
+            <input  type="url" class="validate" name="photo" required value="{{photo}}">
+            <label id="label_{{forloop.counter}}" for="photo_{{forloop.counter}}" >Photo Link</label>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <input type="hidden" value="{{event.ph|length}}" id="add">
+          <a onclick="addclick()" class="waves-effect waves-light btn">Add</a>
+          <a onclick="removeclick()" class="waves-effect waves-light btn">Remove</a>
+        </div>
+        
+        <button class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit" form="signupform">Update</button>
+      </form>
+    </div>
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        
+      })
+
+      function addclick(){
+        val = $('#add').val()
+        val = Number(val)+1
+        var html = '<div class="input-field col s6"><input id="photo_'+ val +'" type="url" class="validate" name="photo" required "><label id="label_'+ val + '" for="photo_'+ val +'" >Photo Link</label></div>'
+        $('#parent').append(html)
+        $('#add').attr('value',val) 
+      }
+      function removeclick(){
+        val = Number($('#add').val())
+        if(val > 1){
+          $('#photo_'+val).remove()
+          $('#label_'+val).remove()
+          $('#add').attr('value',val-1) 
+        }
+      }
+    </script>
+    
+  </body>

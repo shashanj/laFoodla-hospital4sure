@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" ng-app='addevent'>
+  <head>
+    {% load static %}
+  <!-- Meta tags SEO-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Hospital4sure - Events </title>  
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "materialize/css/materialize.css " %}">
+  </head>
+
+  <body>
+    <div class="section no-pad-bot" id="index-banner">
+      <div class="container">
+        <nav>
+          <div class="nav-wrapper">
+            <a href="/" class="brand-logo">Hospital4sure</a>
+            <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+              <li>Hi {{user.name}}</li>
+              <li><a href="/event/logout/">Logout</a></li>
+            </ul>
+            <ul class="side-nav" id="mobile-demo">
+              <li>Hi {{user.name}}</li>
+              <li><a href="/logout/">Logout</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div class="row container" ng-controller="InputController">
+      <form id='signupform' class="col s6" action="/event/add/" method="POST">
+      {% csrf_token %}
+      <div class="row  col s12" style="text-align:center">{{error}}</div>
+      {% verbatim %}
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="name" type="text" class=" validate" name="name" required ng-model="title">
+            <label for="name" >Event Name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <textarea id="details" name="details" required ng-model="details" class="materialize-textarea"></textarea>
+              <label for="details">Details For the Event</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="video" type="url" class=" validate" name="video" required ng-model="videolink">
+            <label for="video" >YouTube Link</label>
+          </div>
+        </div>
+        <div class="row" >
+          <div ng-repeat="x in list">
+            <div class="input-field col s12">
+              <input id="phto_{{x}}" type="url" class=" validate" name="photo" required>
+              <label for="phto_{{x}}" >Latest Photos</label>
+            </div>
+          </div>
+          <div class="col offset-s8 col s2">
+            <a class="btn-floating btn-large waves-effect waves-light red" ng-click="addinp()"><i class="material-icons">add</i></a>
+          </div>
+          <div class="col s2">
+            <a class="btn-floating btn-large waves-effect waves-light red" ng-click="delinp()"><i class="material-icons">minus</i></a>
+          </div>
+        </div>
+        
+        <button  class="waves-effect waves-light btn col s3 col offset-s4" style="align:center"
+        type="submit">Add</button>
+      </form>
+
+      <div class="row">
+        <div class="col s6">
+          <h3>Demo Card </h3>
+        </div>
+        <div class="col s12 m6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title" style="text-transform:capitalize">{{title}}</span>
+              <p><pre>{{details}}</pre></p>
+              <a href="{{videolink}}">{{videolink}}</a>
+            </div>
+            <div class="card-action">
+              <a href="#" >View Event</a>
+              <a href="#" >Edit Event</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endverbatim %}
+    </div>
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/angular.min.js" %}"></script>
+    <script src="{% static "materialize/js/materialize.min.js" %}"></script>
+    <script type="text/javascript">
+      var bloodbank = angular.module('addevent',[]);
+      bloodbank.controller('InputController',["$scope","$http",InputController])
+
+      function InputController($scope, $http){
+        $scope.list = [1]
+
+        $scope.addinp = function(){
+          $scope.list.push($scope.list.length + 1)
+        }
+        $scope.delinp = function(){
+          if($scope.list.length != 1){
+            $scope.list.length = $scope.list.length-1
+          }
+        }
+      }
+    </script>
+  </body>

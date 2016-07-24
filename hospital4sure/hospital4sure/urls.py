@@ -18,10 +18,12 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from auths import views
+from Internal import views as intviews
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^user/', include('visitor.urls')),
+    url(r'^event/', include('Internal.urls')),
     url(r'^$', views.index , name='index' ),
     url(r'^signup/$', views.signup , name='signup' ),
     url(r'^logout/$', views.logoutuser , name='logoutuser' ),
@@ -45,8 +47,12 @@ urlpatterns = [
     url(r'^get-spec/$', views.getspec , name='get-spec' ),
     url(r'^getbbcities/$', views.bbcities , name='getbbcities' ),
     url(r'^getbloodbank/$', views.getbloodbank , name='getbloodbank' ),
+    url(r'^bloodbankrate/$', views.bloodbankrate , name='bloodbankrate' ),
+    url(r'^bloodbankreview/$', views.bloodbankreview , name='bloodbankreview' ),
+    url(r'^bloodbanksendsms/$', views.bloodbanksendsms , name='bloodbanksendsms' ),
     url(r'^(?P<category_name>[a-z,A-Z,0-9-]+)/(?P<username>[a-z,A-Z,0-9-]+)/$', views.viewprofile , name='viewprofile' ),
     url(r'^link/(?P<category_name>[a-z,A-Z,0-9-]+)/(?P<spec>[a-z,A-Z,0-9,\s-]+)/$', views.searchlink , name='viewprofile' ),
+    url(r'^join/$', intviews.join , name='join' ),
     
 ]
 

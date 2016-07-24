@@ -47,3 +47,12 @@ class Review(models.Model):
 
 	def __unicode__ (self):
 		return self.by.username + ' rated ' + self.of.username 
+
+class TemporaryBloodbankVisitor(models.Model):
+	id = models.AutoField(primary_key = True)
+	name = models.CharField(max_length = 40)
+	email = models.EmailField(blank = True)
+	phone_numeber = models.CharField(max_length =18,unique = True)
+
+	def __unicode__(self):
+		return self.name

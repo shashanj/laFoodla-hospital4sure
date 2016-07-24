@@ -66,23 +66,26 @@ def index(request):
         return render_to_response('visitor/index.html',context,RequestContext(request))
 
     user = User.objects.get(id = request.session['userid'])
-    profile =  user.visitor
-    
-    if profile.register == 0 :
-        del request.session['userid']
-        user.delete()
-        return HttpResponseRedirect('/user/')
+    try :
+        profile =  user.visitor
+        
+        if profile.register == 0 :
+            del request.session['userid']
+            user.delete()
+            return HttpResponseRedirect('/user/')
 
-    id = [1,2,4,3,5]
-    cat_id = Category.objects.filter(id__in = id)
-    for cat in cat_id:
-        cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
-    context = {
-        'cat' : cat_id,
-        'userid' : 1,
-        'user' : user,
-    }
-    return render_to_response('visitor/index.html',context,RequestContext(request))
+        id = [1,2,4,3,5]
+        cat_id = Category.objects.filter(id__in = id)
+        for cat in cat_id:
+            cat.spec = Question.objects.filter(category = cat).filter(title = 'Specialization')[0].options.split('\r\n')
+        context = {
+            'cat' : cat_id,
+            'userid' : 1,
+            'user' : user,
+        }
+        return render_to_response('visitor/index.html',context,RequestContext(request))
+    except :
+        return HttpResponseRedirect('/update-bloodbank/')
 
 
 def signup(request):
@@ -214,6 +217,14 @@ def logoutuser(request):
     return HttpResponseRedirect('/')
 
 def loginuser(request):
+    
+    try : 
+        nextt = request.GET.get('next')
+        if nextt == None:
+            nextt = '/user/'
+    except :
+        nextt = '/user/'
+
     try:
         del request.session['count']
         del request.session['otp']
@@ -226,8 +237,8 @@ def loginuser(request):
         isd = request.POST.get('isd')
         username = isd+phone
         password = request.POST.get('password')
-                
-        try:
+               
+        try:           
             user = User.objects.get(username = username)
         except User.DoesNotExist:
             user = None
@@ -244,7 +255,9 @@ def loginuser(request):
                         del request.session['userid']
                         user.delete()
                         return HttpResponseRedirect('/user/')
-                    return HttpResponseRedirect('/user/')
+
+                    nextt = request.POST.get('next')
+                    return HttpResponseRedirect(nextt)
                 else:
                     state = "your account is not active"
             else:
@@ -253,7 +266,7 @@ def loginuser(request):
             state = 'No such user exists'
 
         return render_to_response('visitor/login.html', {'error': state}, RequestContext(request))
-    return render_to_response('visitor/login.html', RequestContext(request))
+    return render_to_response('visitor/login.html',{'next' : nextt}, RequestContext(request))
 
 def changeotp(request):
     if request.is_ajax():

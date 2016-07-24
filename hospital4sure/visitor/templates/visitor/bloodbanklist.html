@@ -7,9 +7,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> LaffoddLa</title>  
+    <title> Hospital4sure - BloodBank </title>  
 
     <style type="text/css">
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+      }
       ul{
         margin : 0;
       }
@@ -170,13 +175,19 @@
         </div>
       </div>
 
+      <input type="hidden" id="phnumber" value="{{number}}">
       {% verbatim %}
+
+      <div class="fixed-action-btn" style="bottom:45px;right:24px">
+        <a href="#smsmodal" class="waves-effect waves-light btn modal-trigger">Get info via Sms</a>
+      </div>
+
       <div class="container" style="margin-top:35px" ng-controller="InputController">
         <div class="row">
           <div class="input-field col s5 col offset-s2">
             <div class="input-field">
               <input id="city" type="search" ng-model="city" ng-change="autocomplete()" style=" text-transform: capitalize">
-              <label id='labelforsearch' for="city"><i class="material-icons">search</i></label>
+              <label id='labelforsearch' for="city"><i class="material-icons">search</i>Enter City</label>
               <i class="material-icons close" ng-click='inpclear()'>close</i>
             </div>  
             <ul class="autocomplete" >
@@ -197,11 +208,18 @@
           </div>
 
 
-          <div class="input-field col s4">
+          <div class="input-field col s2">
             <select ng-model="selectbbtype" required  style="z-index:-999"
-            ng-options= "k for (k,v) in bloodgroup" ng-change="resetshowbbunit()" ng-init="selectbbtype='all'" id="call">
+            ng-options= "v for (k,v) in bloodgroup" ng-change="resetshowbbunit()" ng-init="selectbbtype='all'" id="call">
             </select>
           </div>
+
+          <div class="input-field col s2" >
+            <select ng-model="sortvalue" required  style="z-index:-999" ng-init="sortvalue='all'"
+            ng-options= "key as value for (key,value) in sortoption" ng-change="printsortval()">
+            </select>
+          </div>
+
            <!-- loader -->
           <div class="showbox" ng-show=search>
             <div class="loader">
@@ -214,20 +232,35 @@
 
         <!-- show data -->
         <div class="row">
-        <div class="col s6" ng-repeat="user in bloodbank|filter : greaterthan(getfield(selectbbtype),0)" style="height:480px">
+        <div class="col s6" ng-repeat="user in bloodbank|orderBy : sortvalue: true |filter : greaterthan(getfield(selectbbtype),0)" style="height:550px" ng-init="modelclose()">
           <div class="card " >
             <div class="card-content ">
-                <span class="card-title activator grey-text text-darken-4" style="vertical-align:top;text-transform:capitalize;"><img class="activator" src="/static/images/index.jpg" width="50" height="40" style="margin-right:20px">{{user.name}}<i class="material-icons right">more_vert</i></span>
+                <span class="card-title activator grey-text text-darken-4" style="vertical-align:top;text-transform:capitalize;"><img class="activator" src="/static/images/index.jpg" width="50" height="40" style="margin-right:20px">{{user.name}} [{{user.totalrating}}]<i class="material-icons right">more_vert</i></span>
                 <address style="text-transform:capitalize;cursor:pointer" class="activator" >
                   <pre  class="activator" >{{user.address}}</pre>
                 </address> 
                 <pre class="activator">{{user.timings}}</pre>
                 <pre class="activator">Last Updated : {{user.update}}</pre>           
                 <a href class="activator">Phone Number : {{user.user}}</a>
+                <ul  ng-if=state : "1">
+                  <li style="display:inline-block"><div class="input-field" style="padding-top:10px">
+                    <select name="rating" ng-model="rate[$index]" ng-change="sub($index,user.name)" >
+                      <option value="" disabled selected>Give Your Rating</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select> 
+                  </div></li>
+                  <li style="display:inline-block;float:right;padding-top:10px">
+                    <a class="waves-effect waves-light btn model-trigger" ng-click="reviewmodel(user.name)">Review</a>
+                  </li>
+                </ul>
             </div>
-            <div class="card-reveal teal">
+            <div class="card-reveal grey">
               <span class="card-title grey-text text-darken-4" style="text-transform:capitalize;">{{user.name}}<i class="material-icons right">close</i></span>
-              <ul>
+              <ul class="row">
               <h6>Avaliabilty Of Diffferent Type Of Blood Types</h6>
                 <li class="col s4" style="padding:10px" >A+ : {{user.Aplus}}</li>
                 <li class="col s4" style="padding:10px">A- : {{user.Aminus}}</li>
@@ -252,49 +285,123 @@
                 <li class="col s4" style="padding:10px">co+ : {{user.coplus}}</li>
                 <li class="col s4" style="padding:10px">co- : {{user.cominus}}</li>
               </ul>
+
+              <ul class="row">
+                <h6>Reviews</h6>
+                <li ng-repeat="review in user.review">
+                  <div class="card">
+                    <p style="padding:5px">Reviewed by {{review.by__first_name}}</p>
+                    <pre style="padding:5px">{{review.text}}</pre>
+                  </div>
+                </li> 
+              </ul>
             </div>
 
             <div class="card-action">
-            <ul class="btyp">
-              <li><a target="_blank" href="https://maps.google.com/maps?daddr={{user.gpslocation}}&amp;ll=">Start Navigation</a></li>
-              <li><div class="input-field">
-                <select ng-model="scope[$index]" required ng-init="startselect(user.name,$index)" style="z-index:2" ng-change="showunit(user.name)">
-                  <option ng-value="{{user.Aplus}}"> A+ </option>
-                  <option ng-value="{{user.Aminus}}"> A- </option>
-                  <option ng-value="{{user.Bplus}}"> B+ </option>
-                  <option ng-value="{{user.Bminus}}"> B- </option>
-                  <option ng-value="{{user.ABplus}}"> AB+ </option>
-                  <option ng-value="{{user.ABminus}}"> AB- </option>
-                  <option ng-value="{{user.Oplus}}"> O+ </option>
-                  <option ng-value="{{user.Ominus}}"> O- </option>
-                  <option ng-value="{{user.ffp}}"> ffp </option>
-                  <option ng-value="{{user.cry}}"> cry </option>
-                  <option ng-value="{{user.lpl}}"> lpl </option>
-                  <option ng-value="{{user.aph}}"> aph </option>
-                  <option ng-value="{{user.unt}}"> unt </option>
-                  <option ng-value="{{user.caplus}}"> ca+ </option>
-                  <option ng-value="{{user.caminus}}"> ca- </option>
-                  <option ng-value="{{user.cbplus}}"> cb+ </option>
-                  <option ng-value="{{user.cbminus}}"> cb- </option>
-                  <option ng-value="{{user.cabplus}}"> cab+ </option>
-                  <option ng-value="{{user.cabminus}}"> cab- </option>  
-                  <option ng-value="{{user.coplus}}"> co+ </option>
-                  <option ng-value="{{user.cominus}}"> co- </option>
-                </select>
-                <label >Blood Type</label>
-              </div></li>
-              <li><p ng-bind="scope[$index]" ng-show="field[user.name]" id="$index"></p></li>
+              <ul class="btyp">
+                <li><a target="_blank" href="https://maps.google.com/maps?daddr={{user.gpslocation}}&amp;ll=">Start Navigation</a></li>
+                <li><div class="input-field">
+                  <select ng-model="scopee[$index]" style="z-index:2" ng-change="showunit(user.name,$index)"
+                  ng-init=startselect(user.name,$index) >
+                    <option ng-value="{{user.Aplus}}"> A+ </option>
+                    <option ng-value="{{user.Aminus}}"> A- </option>
+                    <option ng-value="{{user.Bplus}}"> B+ </option>
+                    <option ng-value="{{user.Bminus}}"> B- </option>
+                    <option ng-value="{{user.ABplus}}"> AB+ </option>
+                    <option ng-value="{{user.ABminus}}"> AB- </option>
+                    <option ng-value="{{user.Oplus}}"> O+ </option>
+                    <option ng-value="{{user.Ominus}}"> O- </option>
+                    <option ng-value="{{user.ffp}}"> ffp </option>
+                    <option ng-value="{{user.cry}}"> cry </option>
+                    <option ng-value="{{user.lpl}}"> lpl </option>
+                    <option ng-value="{{user.aph}}"> aph </option>
+                    <option ng-value="{{user.unt}}"> unt </option>
+                    <option ng-value="{{user.caplus}}"> ca+ </option>
+                    <option ng-value="{{user.caminus}}"> ca- </option>
+                    <option ng-value="{{user.cbplus}}"> cb+ </option>
+                    <option ng-value="{{user.cbminus}}"> cb- </option>
+                    <option ng-value="{{user.cabplus}}"> cab+ </option>
+                    <option ng-value="{{user.cabminus}}"> cab- </option>  
+                    <option ng-value="{{user.coplus}}"> co+ </option>
+                    <option ng-value="{{user.cominus}}"> co- </option>
+                  </select>
+                  <label >Blood Type</label>
+                </div></li>
+                <li><p id="$index">{{user.showunitt}}</p></li>
+              </ul>
             </div>
+            
           </div>
         </div>
         </div>
-        <!-- end showing data -->    
+        <!-- end showing data --> 
+      </div>
+
+      <div id="model1" class="modal">
+        <div class="modal-content">
+          <h6>Write Your Review for {{bloodbankname}}</h6>
+          <div class="input-field">
+            <textarea type="text" ng-model="text" class="materialize-textarea"></textarea>
+          </div>
+        </div>
+        <div>
+          <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" ng-click="submitreview(bloodbankname)">Submit</a>
+          <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+      </div>
+
+      <div id="smsmodal" class="modal bottom-sheet">
+        <div class="modal-content">
+          <h4> Just Give us few Details About You</h4>
+          <p>{{success}}</p>
+          <div class="row">
+            <div class="input-field col s10 col offset-s1">
+              <input type="text" ng-model="smsnumber" id="number" class="col s6">
+              <label for="number"> Phone number</label>
+              <a ng-click="smsnumclr()" href>Clear Number</a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s4 col offset-s1 ">
+              <input type="text" ng-model="smscity" id="smscity">
+              <label for="smscity"> city</label>
+            </div>
+            <div class="input-field col s2 ">
+              <select type="text" ng-model="smsbbtype" id="smsbbtype" ng-init='smsbbtypeinit()'>
+              <option value="Aplus"> A+ </option>
+              <option value="Aminus"> A- </option>
+              <option value="Bplus"> B+ </option>
+              <option value="Bminus"> B- </option>
+              <option value="ABplus"> AB+ </option>
+              <option value="ABminus"> AB- </option>
+              <option value="Oplus"> O+ </option>
+              <option value="Ominus"> O- </option>
+              <option value="ffp"> ffp </option>
+              <option value="cry"> cry </option>
+              <option value="lpl"> lpl </option>
+              <option value="aph"> aph </option>
+              <option value="unt"> unt </option>
+              <option value="caplus"> ca+ </option>
+              <option value="caminus"> ca- </option>
+              <option value="cbplus"> cb+ </option>
+              <option value="cbminus"> cb- </option>
+              <option value="cabplus"> cab+ </option>
+              <option value="cabminus"> cab- </option>  
+              <option value="coplus"> co+ </option>
+              <option value="cominus"> co- </option>
+              </select>
+              <label for="smsbbtype">Blood type</label>
+            </div>
+          </div>
+          <div class="row">
+            <a href="#" class="waves-effect waves-light btn col s2 col offset-s4 " ng-click="sendsms()">Submit</a>
+          </div>
+        </div>
       </div>
       {% endverbatim %}
 
     <script src="{% static "js/jquery.js" %}"></script>
     <script src="{% static "js/angular.min.js" %}"></script>
-    <!-- <script src="{% static "js/jquery-ui-1.8.24.min.js" %}"></script> -->
     <script src="{% static "materialize/js/materialize.min.js" %}"></script>
     <script type="text/javascript">
       var bloodbank = angular.module('bloodbank',[]);
@@ -308,15 +415,21 @@
                      "cab+": "cabplus","cab-": "cabminus", "co+" : "coplus", "co-": "cominus",
                      "ffp" : "ffp", "lpl" : "lpl", "unt":"unt", "cry":"cry" ,"aph" : "aph",
                     }
+        $scope.sortoption = {
+          all : "all", totalrating : "Hightest  Rating", update  : "Last Update"
+        }
 
         $scope.bloodgroup = fieldmap
-
         $scope.search = false
         $scope.type = false
         $scope.unit = false       
         $scope.field = []
-        $scope.scope = []
-        click = []
+        $scope.scopee = []
+        $scope.rate = []
+        $scope.rating = []
+        $scope.uniting = []
+        $scope.smsnumber = jQuery('#phnumber').val()
+        jQuery('.modal-trigger').leanModal();
 
         $scope.resetshowbbunit = function(){
           for (var i = $scope.field.length - 1; i >= 0; i--) {
@@ -324,8 +437,76 @@
           }
         }
 
-        $scope.showunit = function(counter){
-            $scope.field[counter.toString()] = true
+        $scope.smsbbtypeinit = function(){
+          $scope.smsbbtype = 'Aplus'
+          jQuery('#smsbbtype').material_select()
+        }
+
+        $scope.smsnumclr = function(){
+          $scope.smsnumber = ''
+        }
+
+        $scope.sendsms = function(){
+          console.log($scope.smsbbtype)
+          var request = {
+            method : 'POST',
+            url : '/bloodbanksendsms/',
+            data : {
+                'number' : $scope.smsnumber,
+                'bbtype' : $scope.smsbbtype,
+                'city' : $scope.smscity,
+              },
+          }
+          $http(request)
+            .success(function(data) {
+              console.log('dfghdfk')
+              $scope.success = 'Message to ' + $scope.smsnumber + ' send for '+ $scope.smsbbtype
+              $scope.smscity = ''
+            })
+            .error(function(data) {
+              alert('could not send sms')
+            });     
+        }
+
+        $scope.reviewmodel = function(name){
+          $scope.bloodbankname = name
+          $scope.text = ''
+          jQuery('#model1').openModal()
+        }
+
+        $scope.submitreview = function(name){
+          var text = $scope.text
+          var request = {
+            method : 'POST',
+            url : '/bloodbankreview/',
+            data : {
+                'rate' : text,
+                'name' : name,
+              },
+          }
+          $http(request)
+              .success(function(data) {
+                for (var i = 0; i < $scope.bloodbank.length; i++) {
+                  if($scope.bloodbank[i].name  == name){
+                    $scope.bloodbank[i].review = data.review
+                    break
+                  }
+                }
+                
+              })
+              .error(function(data) {
+                alert('could not give your review')
+              });          
+        }
+
+        $scope.showunit = function(name,index){
+            for (var i = 0; i < $scope.bloodbank.length; i++) {
+              if($scope.bloodbank[i].name  == name){
+                $scope.bloodbank[i].showunitt = $scope.scopee[index]
+                break
+              }
+            }
+            
           
         }
 
@@ -340,9 +521,42 @@
             return item[field] > value;
           }
         }
-        
+
+        $scope.sub = function(index,value){          
+          var rate = $scope.rate[index]
+          var request = {
+            method : 'POST',
+            url : '/bloodbankrate/',
+            data : {
+                'rate' : rate,
+                'name' : value,
+              },
+          }
+          $http(request)
+              .success(function(data) {
+                for (var i = 0; i < $scope.bloodbank.length; i++) {
+                  if( $scope.bloodbank[i].name  == value){
+                    $scope.bloodbank[i].totalrating = data.rate
+                    break
+                  }
+                }
+                if($scope.sortvalue == 'totalrating'){
+                  $scope.sortvalue = 'totalrating'
+                }
+                
+              })
+              .error(function(data) {
+                alert('could not give your rating')
+              });          
+        }
+
+        $scope.startsort= function(){
+          jQuery('#sort').material_select();
+        }
         $scope.startselect = function(counter,index){
-          $scope.field[counter.toString()] = false
+          jQuery('select').material_select();
+        }
+        $scope.startrate = function(counter,index){
           jQuery('select').material_select();
         }
 
@@ -402,6 +616,10 @@
               var user = angular.fromJson(data.data)
               $scope.search = false
               $scope.bloodbank = user
+              if(data.state == "1"){
+
+                  $scope.state = data.state
+                }
             })
             .error(function(data){
 
