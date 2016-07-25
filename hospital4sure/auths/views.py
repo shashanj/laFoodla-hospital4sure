@@ -129,6 +129,11 @@ def signupprocess(request):
             profile.subcategory = sub_cat
         profile.save()
 
+        visitor = VisitorProfile()
+        visitor.user = new
+        visitor.password = password
+        visitor.save()
+
         user = authenticate(username=isd + username, password=password)
         if user is not None:
             if user.is_active:
@@ -152,6 +157,8 @@ def sendotp(request):
         if request.POST.get('otp') == request.session['otp'] : 
             user.profile.verfied = 1 
             user.profile.save()
+            user.visitor.register = 1
+            user.visitor.save()
             try:
                 del request.session['count']
                 del request.session['otp']
@@ -1037,10 +1044,10 @@ def search(request):
         if 'userid' not in request.session:
             usrid = -1
         else :
-            if UserProfile.objects.filter(user = request.session['userid']).exists():
-                usrid =-1
-            else :
+            if VisitorProfile.objects.filter(user = request.session['userid']).exists():
                 usrid = 1
+            else :
+                usrid = -1
                        
         context = {
             'users' : user,
@@ -1083,13 +1090,10 @@ def viewprofile(request,category_name,username):
     if 'userid' not in request.session :
         id = -1
     else :
-        if UserProfile.objects.filter(user = request.session['userid']).exists():
-            id =-1
-        else :
-            if Review.objects.filter(by = request.session['userid'], of = user).exists():
-                id = 1
-            else:
-                id = 0
+        if Review.objects.filter(by = request.session['userid'], of = user).exists():
+            id = 1
+        else:
+            id = 0
 
     user.review = Review.objects.filter(of = user)[:10]
 
@@ -1210,7 +1214,6 @@ def getbloodbank(request):
         try:
             user = user.visitor
             state = 1
-            print 'gkjgkj'
         except Exception,e :
             print e
             state = 0

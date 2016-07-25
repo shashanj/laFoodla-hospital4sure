@@ -242,18 +242,20 @@
                 <pre class="activator">{{user.timings}}</pre>
                 <pre class="activator">Last Updated : {{user.update}}</pre>           
                 <a href class="activator">Phone Number : {{user.user}}</a>
-                <ul  ng-if=state : "1">
-                  <li style="display:inline-block"><div class="input-field" style="padding-top:10px">
-                    <select name="rating" ng-model="rate[$index]" ng-change="sub($index,user.name)" >
-                      <option value="" disabled selected>Give Your Rating</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                    </select> 
-                  </div></li>
-                  <li style="display:inline-block;float:right;padding-top:10px">
+                <ul ng-show=states>
+                  <li style="display:inline-block">
+                    <div class="input-field" style="padding-top:10px" >
+                      <select name="rating" ng-model="rate[$index]" ng-change="sub($index,user.name)" class="rate">
+                        <option value="" disabled selected>Give Your Rating</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                      </select> 
+                    </div>
+                  </li>
+                  <li style="display:inline-block;float:right;padding-top:10px" >
                     <a class="waves-effect waves-light btn model-trigger" ng-click="reviewmodel(user.name)">Review</a>
                   </li>
                 </ul>
@@ -556,8 +558,8 @@
         $scope.startselect = function(counter,index){
           jQuery('select').material_select();
         }
-        $scope.startrate = function(counter,index){
-          jQuery('select').material_select();
+        $scope.startrate = function(){
+          jQuery('.rate').material_select();
         }
 
         $scope.autocomplete = function(){
@@ -617,9 +619,11 @@
               $scope.search = false
               $scope.bloodbank = user
               if(data.state == "1"){
-
-                  $scope.state = data.state
+                  $scope.states = true
                 }
+              else{
+                 $scope.states = false
+              }
             })
             .error(function(data){
 
